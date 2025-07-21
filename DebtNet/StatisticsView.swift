@@ -2,6 +2,15 @@ import SwiftUI
 
 struct StatisticsView: View {
     @EnvironmentObject var debtStore: DebtStore
+    @State private var selectedFilter: DebtFilter = .all
+    
+    enum DebtFilter {
+        case all
+        case owedToMe
+        case iOwe
+        case active
+        case overdue
+    }
     
     var body: some View {
         ZStack {
@@ -23,17 +32,22 @@ struct StatisticsView: View {
                     
                     LazyVStack(spacing: 20) {
                         // Summary Cards
-                        SummaryCardsView()
+                        SummaryCardsView(selectedFilter: $selectedFilter)
                         
-                        // Category Statistics
-                        CategoryStatisticsView()
-                        
-                        // Recent Activity
-                        RecentActivityView()
-                        
-                        // Overdue Debts Alert
-                        if !debtStore.overdueDebts.isEmpty {
-                            OverdueDebtsView()
+                        // Filtered Debts List
+                        if selectedFilter != .all {
+                            FilteredDebtsView(filter: selectedFilter)
+                        } else {
+                            // Category Statistics
+                            CategoryStatisticsView()
+                            
+                            // Recent Activity
+                            RecentActivityView()
+                            
+                            // Overdue Debts Alert
+                            if !debtStore.overdueDebts.isEmpty {
+                                OverdueDebtsView()
+                            }
                         }
                     }
                     .padding(.horizontal)
@@ -45,6 +59,7 @@ struct StatisticsView: View {
 
 struct SummaryCardsView: View {
     @EnvironmentObject var debtStore: DebtStore
+    @Binding var selectedFilter: StatisticsView.DebtFilter
     
     var body: some View {
         VStack(spacing: 16) {
@@ -54,16 +69,20 @@ struct SummaryCardsView: View {
                     value: debtStore.totalOwedToMeWithInterest,
                     color: .green,
                     icon: "arrow.down.circle.fill",
-                    showOnlyInterest: true,
-                    originalValue: debtStore.totalOwedToMe
-                )
+                    isActive: selectedFilter == .owedToMe
+                ) {
+                    selectedFilter = selectedFilter == .owedToMe ? .all : .owedToMe
+                }
                 
                 StatCard(
                     title: "Я должен",
                     value: debtStore.totalIOwe,
                     color: .red,
-                    icon: "arrow.up.circle.fill"
-                )
+                    icon: "arrow.up.circle.fill",
+                    isActive: selectedFilter == .iOwe
+                ) {
+                    selectedFilter = selectedFilter == .iOwe ? .all : .iOwe
+                }
             }
             
             HStack(spacing: 16) {
@@ -72,16 +91,22 @@ struct SummaryCardsView: View {
                     value: Double(debtStore.activeDebts.count),
                     color: .blue,
                     icon: "list.bullet.circle.fill",
-                    isCount: true
-                )
+                    isCount: true,
+                    isActive: selectedFilter == .active
+                ) {
+                    selectedFilter = selectedFilter == .active ? .all : .active
+                }
                 
                 StatCard(
                     title: "Просрочено",
                     value: Double(debtStore.overdueDebts.count),
                     color: .orange,
                     icon: "exclamationmark.triangle.fill",
-                    isCount: true
-                )
+                    isCount: true,
+                    isActive: selectedFilter == .overdue
+                ) {
+                    selectedFilter = selectedFilter == .overdue ? .all : .overdue
+                }
             }
         }
     }
@@ -93,53 +118,56 @@ struct StatCard: View {
     let color: Color
     let icon: String
     let isCount: Bool
-    let showOnlyInterest: Bool
-    let originalValue: Double?
+    let isActive: Bool
+    let onTap: () -> Void
     
-    init(title: String, value: Double, color: Color, icon: String, isCount: Bool = false, showOnlyInterest: Bool = false, originalValue: Double? = nil) {
+    init(title: String, value: Double, color: Color, icon: String, isCount: Bool = false, isActive: Bool = false, onTap: @escaping () -> Void) {
         self.title = title
         self.value = value
         self.color = color
         self.icon = icon
         self.isCount = isCount
-        self.showOnlyInterest = showOnlyInterest
-        self.originalValue = originalValue
+        self.isActive = isActive
+        self.onTap = onTap
     }
     
     var body: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Image(systemName: icon)
-                    .foregroundColor(color)
-                    .font(.title2)
+        Button(action: onTap) {
+            VStack(spacing: 8) {
+                HStack {
+                    Image(systemName: icon)
+                        .foregroundColor(isActive ? .white : color)
+                        .font(.title2)
+                    Spacer()
+                }
+                
+                Text(title)
+                    .font(.system(size: 14))
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                
                 Spacer()
-            }
-            
-            Text(title)
-                .font(.system(size: 14))
-                .foregroundColor(.white.opacity(0.7))
-                .multilineTextAlignment(.leading)
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
-            
-            Spacer()
-            
-            if showOnlyInterest && originalValue != nil {
-                Text("С %: \(String(format: "%.0f", value)) ₽")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(color)
-            } else {
+                
                 Text(formattedValue)
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(color)
+                    .foregroundColor(isActive ? .white : color)
             }
+            .padding()
+            .frame(maxWidth: .infinity, minHeight: 110, maxHeight: 110, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isActive ? color.opacity(0.8) : Color.gray.opacity(0.1))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isActive ? color : Color.clear, lineWidth: 2)
+            )
+            .scaleEffect(isActive ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.2), value: isActive)
         }
-        .padding()
-        .frame(maxWidth: .infinity, minHeight: 110, maxHeight: 110, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.gray.opacity(0.1))
-        )
+        .buttonStyle(PlainButtonStyle())
     }
     
     private var formattedValue: String {
@@ -148,6 +176,156 @@ struct StatCard: View {
         } else {
             return String(format: "%.0f ₽", value)
         }
+    }
+}
+
+struct FilteredDebtsView: View {
+    @EnvironmentObject var debtStore: DebtStore
+    let filter: StatisticsView.DebtFilter
+    
+    private var filteredDebts: [Debt] {
+        switch filter {
+        case .all:
+            return debtStore.debts
+        case .owedToMe:
+            return debtStore.debts.filter { $0.type == .owedToMe && !$0.isPaid }
+        case .iOwe:
+            return debtStore.debts.filter { $0.type == .iOwe && !$0.isPaid }
+        case .active:
+            return debtStore.activeDebts
+        case .overdue:
+            return debtStore.overdueDebts
+        }
+    }
+    
+    private var headerTitle: String {
+        switch filter {
+        case .all:
+            return "Все долги"
+        case .owedToMe:
+            return "Мне должны"
+        case .iOwe:
+            return "Я должен"
+        case .active:
+            return "Активные долги"
+        case .overdue:
+            return "Просроченные долги"
+        }
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text(headerTitle)
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                Text("\(filteredDebts.count)")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+            
+            if filteredDebts.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "doc.text")
+                        .font(.largeTitle)
+                        .foregroundColor(.gray)
+                    
+                    Text("Нет долгов в этой категории")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
+            } else {
+                LazyVStack(spacing: 12) {
+                    ForEach(filteredDebts) { debt in
+                        FilteredDebtRow(debt: debt)
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.gray.opacity(0.1))
+        )
+    }
+}
+
+struct FilteredDebtRow: View {
+    let debt: Debt
+    @EnvironmentObject var debtStore: DebtStore
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(debt.debtorName)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white)
+                
+                Text(debt.description)
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
+                    .lineLimit(1)
+                
+                HStack(spacing: 8) {
+                    Text(debt.category.rawValue)
+                        .font(.system(size: 12))
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color.blue.opacity(0.2))
+                        .cornerRadius(4)
+                    
+                    if debt.isOverdue {
+                        Text("Просрочен")
+                            .font(.system(size: 12))
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(Color.red.opacity(0.2))
+                            .cornerRadius(4)
+                    }
+                    
+                    if let dueDate = debt.dueDate {
+                        Text(dueDate, formatter: shortDateFormatter)
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+            
+            Spacer()
+            
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(debt.formattedAmount)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(debt.type == .owedToMe ? .green : .red)
+                
+                Text(debt.type.rawValue)
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+                
+                if !debt.isPaid {
+                    Button("Погасить") {
+                        withAnimation {
+                            debtStore.markAsPaid(debt)
+                        }
+                    }
+                    .font(.system(size: 12))
+                    .foregroundColor(.blue)
+                } else {
+                    Text("Погашен")
+                        .font(.system(size: 12))
+                        .foregroundColor(.green)
+                }
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 4)
     }
 }
 
@@ -360,6 +538,12 @@ private let recentDateFormatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateStyle = .short
     formatter.timeStyle = .short
+    return formatter
+}()
+
+private let shortDateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .short
     return formatter
 }()
 
