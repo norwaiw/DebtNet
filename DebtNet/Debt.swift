@@ -45,11 +45,11 @@ struct Debt: Identifiable, Codable {
     
     var amountWithSign: String {
         let sign = type == .owedToMe ? "" : "-"
-        return "\(sign)\(String(format: "%.0f", amount))"
+        return "\(sign)\(String(format: "%.0f", amount)) ₽"
     }
     
     var amountWithInterestAndSign: String {
         let sign = type == .owedToMe ? "" : "-"
-        return "\(sign)\(String(format: "%.0f", amountWithInterest))"
+        return "\(sign)\(String(format: "%.0f", amountWithInterest)) ₽"
     }
 }
