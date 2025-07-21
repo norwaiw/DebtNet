@@ -51,9 +51,11 @@ struct SummaryCardsView: View {
             HStack(spacing: 16) {
                 StatCard(
                     title: "Мне должны",
-                    value: debtStore.totalOwedToMe,
+                    value: debtStore.totalOwedToMeWithInterest,
                     color: .green,
-                    icon: "arrow.down.circle.fill"
+                    icon: "arrow.down.circle.fill",
+                    showOnlyInterest: true,
+                    originalValue: debtStore.totalOwedToMe
                 )
                 
                 StatCard(
@@ -91,13 +93,17 @@ struct StatCard: View {
     let color: Color
     let icon: String
     let isCount: Bool
+    let showOnlyInterest: Bool
+    let originalValue: Double?
     
-    init(title: String, value: Double, color: Color, icon: String, isCount: Bool = false) {
+    init(title: String, value: Double, color: Color, icon: String, isCount: Bool = false, showOnlyInterest: Bool = false, originalValue: Double? = nil) {
         self.title = title
         self.value = value
         self.color = color
         self.icon = icon
         self.isCount = isCount
+        self.showOnlyInterest = showOnlyInterest
+        self.originalValue = originalValue
     }
     
     var body: some View {
@@ -118,12 +124,18 @@ struct StatCard: View {
             
             Spacer()
             
-            Text(formattedValue)
-                .font(.system(size: 20, weight: .bold))
-                .foregroundColor(color)
+            if showOnlyInterest && originalValue != nil {
+                Text("С %: \(String(format: "%.0f", value)) ₽")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(color)
+            } else {
+                Text(formattedValue)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(color)
+            }
         }
         .padding()
-        .frame(maxWidth: .infinity, minHeight: 100, maxHeight: 100, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 110, maxHeight: 110, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.gray.opacity(0.1))
