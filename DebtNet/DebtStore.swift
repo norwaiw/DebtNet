@@ -8,10 +8,8 @@ class DebtStore: ObservableObject {
     
     init() {
         loadDebts()
-        // Add sample data if empty
-        if debts.isEmpty {
-            addSampleData()
-        }
+        // Clear all existing data including sample data
+        clearAllData()
     }
     
     func addDebt(_ debt: Debt) {
@@ -28,6 +26,11 @@ class DebtStore: ObservableObject {
     
     func deleteDebt(_ debt: Debt) {
         debts.removeAll { $0.id == debt.id }
+        saveDebts()
+    }
+    
+    func clearAllData() {
+        debts.removeAll()
         saveDebts()
     }
     
