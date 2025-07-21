@@ -10,6 +10,7 @@ struct DebtNetApp: App {
             ContentView()
                 .environmentObject(debtStore)
                 .environmentObject(themeManager)
+                .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
         }
     }
 }

@@ -114,6 +114,7 @@ struct SummaryCardsView: View {
 }
 
 struct StatCard: View {
+    @EnvironmentObject var themeManager: ThemeManager
     let title: String
     let value: Double
     let color: Color
@@ -144,7 +145,7 @@ struct StatCard: View {
                 
                 Text(title)
                     .font(.system(size: 14))
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(themeManager.isDarkMode ? .white.opacity(0.7) : themeManager.secondaryTextColor)
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
@@ -159,11 +160,12 @@ struct StatCard: View {
             .frame(maxWidth: .infinity, minHeight: 110, maxHeight: 110, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isActive ? color.opacity(0.8) : Color.gray.opacity(0.1))
+                    .fill(isActive ? color.opacity(0.8) : themeManager.cardBackgroundColor)
+                    .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isActive ? color : Color.clear, lineWidth: 2)
+                    .stroke(isActive ? color : themeManager.borderColor, lineWidth: isActive ? 2 : 1)
             )
             .scaleEffect(isActive ? 0.95 : 1.0)
             .animation(.easeInOut(duration: 0.2), value: isActive)
@@ -182,6 +184,7 @@ struct StatCard: View {
 
 struct FilteredDebtsView: View {
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     let filter: StatisticsView.DebtFilter
     
     private var filteredDebts: [Debt] {
@@ -219,24 +222,24 @@ struct FilteredDebtsView: View {
             HStack {
                 Text(headerTitle)
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.primaryTextColor)
                 
                 Spacer()
                 
                 Text("\(filteredDebts.count)")
                     .font(.subheadline)
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
             }
             
             if filteredDebts.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "doc.text")
                         .font(.largeTitle)
-                        .foregroundColor(.gray)
+                        .foregroundColor(themeManager.secondaryTextColor)
                     
                     Text("Нет долгов в этой категории")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(themeManager.secondaryTextColor)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 40)
@@ -251,7 +254,8 @@ struct FilteredDebtsView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.gray.opacity(0.1))
+                .fill(themeManager.cardBackgroundColor)
+                .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
         )
     }
 }
@@ -259,17 +263,18 @@ struct FilteredDebtsView: View {
 struct FilteredDebtRow: View {
     let debt: Debt
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(debt.debtorName)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.primaryTextColor)
                 
                 Text(debt.description)
                     .font(.system(size: 14))
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
                     .lineLimit(1)
                 
                 HStack(spacing: 8) {
@@ -294,7 +299,7 @@ struct FilteredDebtRow: View {
                     if let dueDate = debt.dueDate {
                         Text(dueDate, formatter: shortDateFormatter)
                             .font(.system(size: 12))
-                            .foregroundColor(.gray)
+                            .foregroundColor(themeManager.secondaryTextColor)
                     }
                 }
             }
@@ -308,7 +313,7 @@ struct FilteredDebtRow: View {
                 
                 Text(debt.type.rawValue)
                     .font(.system(size: 12))
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
                 
                 if !debt.isPaid {
                     Button("Погасить") {
@@ -332,12 +337,13 @@ struct FilteredDebtRow: View {
 
 struct CategoryStatisticsView: View {
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("По категориям")
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(themeManager.primaryTextColor)
             
             let categoryGroups = debtStore.debtsByCategory()
             
@@ -352,12 +358,14 @@ struct CategoryStatisticsView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.gray.opacity(0.1))
+                .fill(themeManager.cardBackgroundColor)
+                .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
         )
     }
 }
 
 struct CategoryRow: View {
+    @EnvironmentObject var themeManager: ThemeManager
     let category: Debt.DebtCategory
     let debts: [Debt]
     
@@ -374,18 +382,18 @@ struct CategoryRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(category.rawValue)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.primaryTextColor)
                 
                 Text("\(activeCount) активных")
                     .font(.system(size: 14))
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
             }
             
             Spacer()
             
             Text(String(format: "%.0f ₽", totalAmount))
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundColor(themeManager.primaryTextColor)
         }
         .padding(.vertical, 8)
     }
@@ -393,6 +401,7 @@ struct CategoryRow: View {
 
 struct RecentActivityView: View {
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     
     private var recentDebts: [Debt] {
         debtStore.debts
@@ -405,12 +414,12 @@ struct RecentActivityView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Недавняя активность")
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(themeManager.primaryTextColor)
             
             if recentDebts.isEmpty {
                 Text("Нет недавней активности")
                     .font(.subheadline)
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
                     .padding()
             } else {
                 VStack(spacing: 12) {
@@ -423,12 +432,14 @@ struct RecentActivityView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.gray.opacity(0.1))
+                .fill(themeManager.cardBackgroundColor)
+                .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
         )
     }
 }
 
 struct RecentActivityRow: View {
+    @EnvironmentObject var themeManager: ThemeManager
     let debt: Debt
     
     var body: some View {
@@ -436,11 +447,11 @@ struct RecentActivityRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(debt.debtorName)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.primaryTextColor)
                 
                 Text(debt.dateCreated, formatter: recentDateFormatter)
                     .font(.system(size: 14))
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
             }
             
             Spacer()
@@ -453,7 +464,7 @@ struct RecentActivityRow: View {
                 
                 Text(debt.formattedAmount)
                     .font(.system(size: 16))
-                    .foregroundColor(debt.isPaid ? .green : .white)
+                    .foregroundColor(debt.isPaid ? .green : themeManager.primaryTextColor)
             }
         }
         .padding(.vertical, 4)
@@ -462,6 +473,7 @@ struct RecentActivityRow: View {
 
 struct OverdueDebtsView: View {
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -482,11 +494,11 @@ struct OverdueDebtsView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.red.opacity(0.1))
+                .fill(themeManager.overdueCardBackground)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                .stroke(themeManager.overdueCardBorder, lineWidth: 1)
         )
     }
 }
@@ -494,13 +506,14 @@ struct OverdueDebtsView: View {
 struct OverdueDebtRow: View {
     let debt: Debt
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(debt.debtorName)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.primaryTextColor)
                 
                 if let dueDate = debt.dueDate {
                     Text("Просрочен с \(dueDate, formatter: dateFormatter)")
@@ -551,5 +564,5 @@ private let shortDateFormatter: DateFormatter = {
 #Preview {
     StatisticsView()
         .environmentObject(DebtStore())
-        .preferredColorScheme(.dark)
+        .environmentObject(ThemeManager())
 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct DebtDetailView: View {
     let debt: Debt
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     @Environment(\.presentationMode) var presentationMode
     @State private var showingEditDebt = false
     @State private var showingDeleteAlert = false
@@ -25,7 +26,7 @@ struct DebtDetailView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.ignoresSafeArea()
+                themeManager.backgroundColor.ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 24) {
@@ -63,6 +64,7 @@ struct DebtDetailView: View {
         .sheet(isPresented: $showingEditDebt) {
             EditDebtView(debt: debt)
                 .environmentObject(debtStore)
+                .environmentObject(themeManager)
         }
     }
     
@@ -73,7 +75,7 @@ struct DebtDetailView: View {
                     presentationMode.wrappedValue.dismiss()
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.white)
+                        .foregroundColor(themeManager.primaryTextColor)
                         .font(.title2)
                 }
                 
@@ -82,7 +84,7 @@ struct DebtDetailView: View {
                 Text("Детали долга")
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.primaryTextColor)
                 
                 Spacer()
                 
@@ -124,7 +126,7 @@ struct DebtDetailView: View {
                 
                 Text("RUB")
                     .font(.system(size: 16))
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
             }
             
             // Type indicator
@@ -140,13 +142,14 @@ struct DebtDetailView: View {
                 
                 Text(debt.type.rawValue)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.primaryTextColor)
             }
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.gray.opacity(0.1))
+                .fill(themeManager.cardBackgroundColor)
+                .shadow(color: themeManager.shadowColor, radius: 3, x: 0, y: 2)
         )
     }
     
@@ -155,7 +158,7 @@ struct DebtDetailView: View {
             Text("Информация")
                 .font(.title3)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(themeManager.primaryTextColor)
             
             VStack(spacing: 12) {
                 DetailRow(title: "Должник", value: debt.debtorName)
@@ -166,7 +169,7 @@ struct DebtDetailView: View {
                     HStack {
                         Text("Статус")
                             .font(.system(size: 14))
-                            .foregroundColor(.gray)
+                            .foregroundColor(themeManager.secondaryTextColor)
                         
                         Spacer()
                         
@@ -185,7 +188,8 @@ struct DebtDetailView: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.1))
+                    .fill(themeManager.cardBackgroundColor)
+                    .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
             )
         }
     }
@@ -195,7 +199,7 @@ struct DebtDetailView: View {
             Text("Даты")
                 .font(.title3)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(themeManager.primaryTextColor)
             
             VStack(spacing: 12) {
                 DetailRow(
@@ -207,7 +211,7 @@ struct DebtDetailView: View {
                     DetailRow(
                         title: "Срок возврата",
                         value: dateFormatter.string(from: dueDate),
-                        valueColor: debt.isOverdue && !debt.isPaid ? .red : .white
+                        valueColor: debt.isOverdue && !debt.isPaid ? .red : nil
                     )
                 } else {
                     DetailRow(title: "Срок возврата", value: "Не установлен")
@@ -216,7 +220,8 @@ struct DebtDetailView: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.1))
+                    .fill(themeManager.cardBackgroundColor)
+                    .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
             )
         }
     }
@@ -267,21 +272,22 @@ struct DebtDetailView: View {
 }
 
 struct DetailRow: View {
+    @EnvironmentObject var themeManager: ThemeManager
     let title: String
     let value: String
-    var valueColor: Color = .white
+    var valueColor: Color?
     
     var body: some View {
         HStack {
             Text(title)
                 .font(.system(size: 14))
-                .foregroundColor(.gray)
+                .foregroundColor(themeManager.secondaryTextColor)
             
             Spacer()
             
             Text(value)
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(valueColor)
+                .foregroundColor(valueColor ?? themeManager.primaryTextColor)
                 .multilineTextAlignment(.trailing)
         }
     }
@@ -298,5 +304,5 @@ struct DetailRow: View {
         type: .owedToMe
     ))
     .environmentObject(DebtStore())
-    .preferredColorScheme(.dark)
+    .environmentObject(ThemeManager())
 }
