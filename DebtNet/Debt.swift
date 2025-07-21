@@ -5,7 +5,7 @@ struct Debt: Identifiable, Codable {
     var debtorName: String
     var amount: Double
     var description: String
-    var dateCreated: Date
+    let dateCreated: Date
     var dueDate: Date?
     var isPaid: Bool = false
     var category: DebtCategory
@@ -34,7 +34,7 @@ struct Debt: Identifiable, Codable {
     }
     
     var amountWithSign: String {
-        let sign = type == .owedToMe ? "+" : "-"
+        let sign = type == .owedToMe ? "" : "-"
         return "\(sign)\(String(format: "%.0f", amount))"
     }
 }

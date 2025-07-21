@@ -60,6 +60,10 @@ struct DebtDetailView: View {
                  "Долг от \(debt.debtorName) на сумму \(debt.formattedAmount) будет возвращён в активное состояние" :
                  "Вы уверены, что долг от \(debt.debtorName) на сумму \(debt.formattedAmount) погашен?")
         }
+        .sheet(isPresented: $showingEditDebt) {
+            EditDebtView(debt: debt)
+                .environmentObject(debtStore)
+        }
     }
     
     private var headerSection: some View {
