@@ -4,26 +4,41 @@ struct StatisticsView: View {
     @EnvironmentObject var debtStore: DebtStore
     
     var body: some View {
-        NavigationView {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
             ScrollView {
-                LazyVStack(spacing: 20) {
-                    // Summary Cards
-                    SummaryCardsView()
-                    
-                    // Category Statistics
-                    CategoryStatisticsView()
-                    
-                    // Recent Activity
-                    RecentActivityView()
-                    
-                    // Overdue Debts Alert
-                    if !debtStore.overdueDebts.isEmpty {
-                        OverdueDebtsView()
+                VStack(spacing: 24) {
+                    // Header
+                    HStack {
+                        Text("Статистика")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Spacer()
                     }
+                    .padding(.horizontal)
+                    .padding(.top)
+                    
+                    LazyVStack(spacing: 20) {
+                        // Summary Cards
+                        SummaryCardsView()
+                        
+                        // Category Statistics
+                        CategoryStatisticsView()
+                        
+                        // Recent Activity
+                        RecentActivityView()
+                        
+                        // Overdue Debts Alert
+                        if !debtStore.overdueDebts.isEmpty {
+                            OverdueDebtsView()
+                        }
+                    }
+                    .padding(.horizontal)
                 }
-                .padding()
             }
-            .navigationTitle("Статистика")
         }
     }
 }
@@ -35,17 +50,17 @@ struct SummaryCardsView: View {
         VStack(spacing: 16) {
             HStack(spacing: 16) {
                 StatCard(
-                    title: "Общий долг",
-                    value: debtStore.totalDebtAmount,
-                    color: .red,
-                    icon: "minus.circle.fill"
+                    title: "Мне должны",
+                    value: debtStore.totalOwedToMe,
+                    color: .green,
+                    icon: "arrow.down.circle.fill"
                 )
                 
                 StatCard(
-                    title: "Погашено",
-                    value: debtStore.totalPaidAmount,
-                    color: .green,
-                    icon: "checkmark.circle.fill"
+                    title: "Я должен",
+                    value: debtStore.totalIOwe,
+                    color: .red,
+                    icon: "arrow.up.circle.fill"
                 )
             }
             
@@ -90,29 +105,32 @@ struct StatCard: View {
             HStack {
                 Image(systemName: icon)
                     .foregroundColor(color)
+                    .font(.title2)
                 Spacer()
             }
             
             Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.7))
                 .multilineTextAlignment(.leading)
             
             Text(formattedValue)
-                .font(.headline)
-                .fontWeight(.semibold)
+                .font(.system(size: 20, weight: .bold))
                 .foregroundColor(color)
         }
         .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.gray.opacity(0.1))
+        )
     }
     
     private var formattedValue: String {
         if isCount {
             return String(format: "%.0f", value)
         } else {
-            return String(format: "%.2f ₽", value)
+            return String(format: "%.0f ₽", value)
         }
     }
 }
@@ -121,22 +139,26 @@ struct CategoryStatisticsView: View {
     @EnvironmentObject var debtStore: DebtStore
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("По категориям")
                 .font(.headline)
-                .padding(.horizontal)
+                .foregroundColor(.white)
             
             let categoryGroups = debtStore.debtsByCategory()
             
-            ForEach(Debt.DebtCategory.allCases, id: \.self) { category in
-                if let debts = categoryGroups[category], !debts.isEmpty {
-                    CategoryRow(category: category, debts: debts)
+            VStack(spacing: 12) {
+                ForEach(Debt.DebtCategory.allCases, id: \.self) { category in
+                    if let debts = categoryGroups[category], !debts.isEmpty {
+                        CategoryRow(category: category, debts: debts)
+                    }
                 }
             }
         }
         .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.gray.opacity(0.1))
+        )
     }
 }
 
@@ -154,23 +176,22 @@ struct CategoryRow: View {
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(category.rawValue)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white)
                 
                 Text("\(activeCount) активных")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
             }
             
             Spacer()
             
-            Text(String(format: "%.2f ₽", totalAmount))
-                .font(.subheadline)
-                .fontWeight(.semibold)
+            Text(String(format: "%.0f ₽", totalAmount))
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.white)
         }
-        .padding(.horizontal)
         .padding(.vertical, 8)
     }
 }
@@ -186,25 +207,29 @@ struct RecentActivityView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("Недавняя активность")
                 .font(.headline)
-                .padding(.horizontal)
+                .foregroundColor(.white)
             
             if recentDebts.isEmpty {
                 Text("Нет недавней активности")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.gray)
                     .padding()
             } else {
-                ForEach(recentDebts) { debt in
-                    RecentActivityRow(debt: debt)
+                VStack(spacing: 12) {
+                    ForEach(recentDebts) { debt in
+                        RecentActivityRow(debt: debt)
+                    }
                 }
             }
         }
         .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.gray.opacity(0.1))
+        )
     }
 }
 
@@ -213,14 +238,14 @@ struct RecentActivityRow: View {
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(debt.debtorName)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white)
                 
                 Text(debt.dateCreated, formatter: recentDateFormatter)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
             }
             
             Spacer()
@@ -232,11 +257,10 @@ struct RecentActivityRow: View {
                 }
                 
                 Text(debt.formattedAmount)
-                    .font(.subheadline)
-                    .foregroundColor(debt.isPaid ? .green : .primary)
+                    .font(.system(size: 16))
+                    .foregroundColor(debt.isPaid ? .green : .white)
             }
         }
-        .padding(.horizontal)
         .padding(.vertical, 4)
     }
 }
@@ -245,7 +269,7 @@ struct OverdueDebtsView: View {
     @EnvironmentObject var debtStore: DebtStore
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundColor(.red)
@@ -253,15 +277,18 @@ struct OverdueDebtsView: View {
                     .font(.headline)
                     .foregroundColor(.red)
             }
-            .padding(.horizontal)
             
-            ForEach(debtStore.overdueDebts) { debt in
-                OverdueDebtRow(debt: debt)
+            VStack(spacing: 12) {
+                ForEach(debtStore.overdueDebts) { debt in
+                    OverdueDebtRow(debt: debt)
+                }
             }
         }
         .padding()
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.red.opacity(0.1))
+        )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.red.opacity(0.3), lineWidth: 1)
@@ -275,24 +302,23 @@ struct OverdueDebtRow: View {
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(debt.debtorName)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white)
                 
                 if let dueDate = debt.dueDate {
                     Text("Просрочен с \(dueDate, formatter: dateFormatter)")
-                        .font(.caption)
+                        .font(.system(size: 14))
                         .foregroundColor(.red)
                 }
             }
             
             Spacer()
             
-            VStack(alignment: .trailing) {
+            VStack(alignment: .trailing, spacing: 4) {
                 Text(debt.formattedAmount)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.red)
                 
                 Button("Погасить") {
@@ -300,11 +326,10 @@ struct OverdueDebtRow: View {
                         debtStore.markAsPaid(debt)
                     }
                 }
-                .font(.caption)
+                .font(.system(size: 12))
                 .foregroundColor(.blue)
             }
         }
-        .padding(.horizontal)
         .padding(.vertical, 4)
     }
 }
@@ -325,4 +350,5 @@ private let recentDateFormatter: DateFormatter = {
 #Preview {
     StatisticsView()
         .environmentObject(DebtStore())
+        .preferredColorScheme(.dark)
 }

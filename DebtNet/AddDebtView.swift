@@ -8,6 +8,7 @@ struct AddDebtView: View {
     @State private var amount = ""
     @State private var description = ""
     @State private var category: Debt.DebtCategory = .personal
+    @State private var debtType: Debt.DebtType = .owedToMe
     @State private var hasDueDate = false
     @State private var dueDate = Date()
     
@@ -16,58 +17,163 @@ struct AddDebtView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Информация о должнике")) {
-                    TextField("Имя должника", text: $debtorName)
-                        .autocapitalization(.words)
-                    
-                    TextField("Описание долга", text: $description)
-                        .autocapitalization(.sentences)
-                }
+            ZStack {
+                Color.black.ignoresSafeArea()
                 
-                Section(header: Text("Сумма и категория")) {
-                    HStack {
-                        TextField("Сумма", text: $amount)
-                            .keyboardType(.decimalPad)
-                        Text("₽")
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    Picker("Категория", selection: $category) {
-                        ForEach(Debt.DebtCategory.allCases, id: \.self) { category in
-                            Text(category.rawValue).tag(category)
+                ScrollView {
+                    VStack(spacing: 24) {
+                        // Header
+                        HStack {
+                            Button("Отмена") {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                            .foregroundColor(.gray)
+                            
+                            Spacer()
+                            
+                            Text("Новый долг")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            
+                            Spacer()
+                            
+                            Button("Готово") {
+                                addDebt()
+                            }
+                            .foregroundColor(isFormValid ? .blue : .gray)
+                            .disabled(!isFormValid)
                         }
+                        .padding(.horizontal)
+                        .padding(.top)
+                        
+                        VStack(spacing: 20) {
+                            // Debt Type Selection
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Тип долга")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                
+                                HStack(spacing: 12) {
+                                    ForEach(Debt.DebtType.allCases, id: \.self) { type in
+                                        Button(action: {
+                                            debtType = type
+                                        }) {
+                                            Text(type.rawValue)
+                                                .font(.system(size: 16))
+                                                .foregroundColor(debtType == type ? .white : .gray)
+                                                .padding(.horizontal, 20)
+                                                .padding(.vertical, 12)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 25)
+                                                        .fill(debtType == type ? Color.blue : Color.gray.opacity(0.3))
+                                                )
+                                        }
+                                    }
+                                    Spacer()
+                                }
+                            }
+                            .padding(.horizontal)
+                            
+                            // Person Name
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(debtType == .owedToMe ? "Имя должника" : "Кому должен")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                
+                                TextField(debtType == .owedToMe ? "Введите имя должника" : "Введите имя кредитора", text: $debtorName)
+                                    .textFieldStyle(DarkTextFieldStyle())
+                            }
+                            .padding(.horizontal)
+                            
+                            // Amount
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Сумма")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                
+                                HStack {
+                                    TextField("0", text: $amount)
+                                        .keyboardType(.decimalPad)
+                                        .textFieldStyle(DarkTextFieldStyle())
+                                    
+                                    Text("₽")
+                                        .foregroundColor(.gray)
+                                        .padding(.trailing, 12)
+                                }
+                            }
+                            .padding(.horizontal)
+                            
+                            // Description
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Описание")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                
+                                TextField("За что долг?", text: $description)
+                                    .textFieldStyle(DarkTextFieldStyle())
+                            }
+                            .padding(.horizontal)
+                            
+                            // Category
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Категория")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        ForEach(Debt.DebtCategory.allCases, id: \.self) { cat in
+                                            Button(action: {
+                                                category = cat
+                                            }) {
+                                                Text(cat.rawValue)
+                                                    .font(.system(size: 14))
+                                                    .foregroundColor(category == cat ? .white : .gray)
+                                                    .padding(.horizontal, 16)
+                                                    .padding(.vertical, 8)
+                                                    .background(
+                                                        RoundedRectangle(cornerRadius: 20)
+                                                            .fill(category == cat ? Color.blue : Color.gray.opacity(0.3))
+                                                    )
+                                            }
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                }
+                            }
+                            
+                            // Due Date
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text("Срок погашения")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    
+                                    Spacer()
+                                    
+                                    Toggle("", isOn: $hasDueDate)
+                                        .labelsHidden()
+                                }
+                                
+                                if hasDueDate {
+                                    DatePicker("Дата погашения", selection: $dueDate, displayedComponents: .date)
+                                        .datePickerStyle(WheelDatePickerStyle())
+                                        .labelsHidden()
+                                        .colorScheme(.dark)
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                        
+                        Spacer(minLength: 100)
                     }
-                }
-                
-                Section(header: Text("Срок погашения")) {
-                    Toggle("Установить срок погашения", isOn: $hasDueDate)
-                    
-                    if hasDueDate {
-                        DatePicker("Дата погашения", selection: $dueDate, displayedComponents: .date)
-                    }
-                }
-                
-                Section {
-                    Button("Добавить долг") {
-                        addDebt()
-                    }
-                    .disabled(!isFormValid)
                 }
             }
-            .navigationTitle("Новый долг")
-            .navigationBarItems(
-                leading: Button("Отмена") {
-                    presentationMode.wrappedValue.dismiss()
-                },
-                trailing: Button("Готово") {
-                    addDebt()
-                }
-                .disabled(!isFormValid)
-            )
-            .alert(isPresented: $showingAlert) {
-                Alert(title: Text("Ошибка"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-            }
+            .navigationBarHidden(true)
+        }
+        .alert(isPresented: $showingAlert) {
+            Alert(title: Text("Ошибка"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
     }
     
@@ -83,7 +189,7 @@ struct AddDebtView: View {
         }
         
         guard !debtorName.isEmpty else {
-            alertMessage = "Введите имя должника"
+            alertMessage = "Введите имя"
             showingAlert = true
             return
         }
@@ -94,7 +200,8 @@ struct AddDebtView: View {
             description: description.trimmingCharacters(in: .whitespacesAndNewlines),
             dateCreated: Date(),
             dueDate: hasDueDate ? dueDate : nil,
-            category: category
+            category: category,
+            type: debtType
         )
         
         debtStore.addDebt(newDebt)
@@ -102,7 +209,20 @@ struct AddDebtView: View {
     }
 }
 
+struct DarkTextFieldStyle: TextFieldStyle {
+    func _body(configuration: TextField<Self._Label>) -> some View {
+        configuration
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.gray.opacity(0.2))
+            )
+            .foregroundColor(.white)
+    }
+}
+
 #Preview {
     AddDebtView()
         .environmentObject(DebtStore())
+        .preferredColorScheme(.dark)
 }

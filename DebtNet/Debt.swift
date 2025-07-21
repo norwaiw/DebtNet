@@ -9,6 +9,7 @@ struct Debt: Identifiable, Codable {
     var dueDate: Date?
     var isPaid: Bool = false
     var category: DebtCategory
+    var type: DebtType
     
     enum DebtCategory: String, CaseIterable, Codable {
         case personal = "Личный"
@@ -18,12 +19,22 @@ struct Debt: Identifiable, Codable {
         case other = "Другое"
     }
     
+    enum DebtType: String, CaseIterable, Codable {
+        case owedToMe = "Мне должны"    // Someone owes me money
+        case iOwe = "Я должен"          // I owe someone money
+    }
+    
     var formattedAmount: String {
-        return String(format: "%.2f ₽", amount)
+        return String(format: "%.0f ₽", amount)
     }
     
     var isOverdue: Bool {
         guard let dueDate = dueDate else { return false }
         return !isPaid && Date() > dueDate
+    }
+    
+    var amountWithSign: String {
+        let sign = type == .owedToMe ? "+" : "-"
+        return "\(sign)\(String(format: "%.0f", amount))"
     }
 }
