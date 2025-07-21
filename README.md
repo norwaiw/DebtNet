@@ -18,6 +18,7 @@ DebtNet is a SwiftUI-based iOS app for tracking personal debts. The app has been
 - Summary cards showing total amounts for each debt type
 - Filter buttons: "Все" (All), "Мне должны" (Owed to me), "Я должен" (I owe)
 - Transaction history with visual indicators
+- **Tap on any debt item to view detailed information**
 
 ### 🎯 Key Screens
 
@@ -33,6 +34,14 @@ DebtNet is a SwiftUI-based iOS app for tracking personal debts. The app has been
 - Debt type selection (owed to me / I owe)
 - Amount, description, and category inputs
 - Due date selection
+
+#### Debt Details
+- **New screen** showing comprehensive debt information
+- Large amount display with debt type indicator
+- Complete debt information (debtor, description, category)
+- Creation date and due date (with overdue warnings)
+- Actions: Mark as paid/unpaid, delete debt
+- Back navigation to return to main list
 
 #### Statistics
 - Overview of debt breakdown
