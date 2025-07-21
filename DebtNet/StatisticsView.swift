@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StatisticsView: View {
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     @State private var selectedFilter: DebtFilter = .all
     
     enum DebtFilter {
@@ -14,7 +15,7 @@ struct StatisticsView: View {
     
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            themeManager.backgroundColor.ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 24) {
@@ -23,7 +24,7 @@ struct StatisticsView: View {
                         Text("Статистика")
                             .font(.title)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(themeManager.primaryTextColor)
                         
                         Spacer()
                     }
