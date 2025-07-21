@@ -17,16 +17,20 @@ class DebtStore: ObservableObject {
     func addDebt(_ debt: Debt) {
         debts.append(debt)
         saveDebts()
+        scheduleNotificationsIfEnabled()
     }
     
     func updateDebt(_ debt: Debt) {
         if let index = debts.firstIndex(where: { $0.id == debt.id }) {
             debts[index] = debt
             saveDebts()
+            scheduleNotificationsIfEnabled()
         }
     }
     
     func deleteDebt(_ debt: Debt) {
+        // Отменяем уведомления для удаляемого долга
+        NotificationManager.shared.cancelNotificationForDebt(debt)
         debts.removeAll { $0.id == debt.id }
         saveDebts()
     }
@@ -39,6 +43,8 @@ class DebtStore: ObservableObject {
     func markAsPaid(_ debt: Debt) {
         if let index = debts.firstIndex(where: { $0.id == debt.id }) {
             debts[index].isPaid = true
+            // Отменяем уведомления для погашенного долга
+            NotificationManager.shared.cancelNotificationForDebt(debt)
             saveDebts()
         }
     }
@@ -47,12 +53,23 @@ class DebtStore: ObservableObject {
         if let index = debts.firstIndex(where: { $0.id == debt.id }) {
             debts[index].isPaid = false
             saveDebts()
+            scheduleNotificationsIfEnabled()
         }
     }
     
     func togglePaidStatus(_ debt: Debt) {
         if let index = debts.firstIndex(where: { $0.id == debt.id }) {
+            let wasPaid = debts[index].isPaid
             debts[index].isPaid.toggle()
+            
+            if debts[index].isPaid {
+                // Долг погашен - отменяем уведомления
+                NotificationManager.shared.cancelNotificationForDebt(debt)
+            } else if !wasPaid {
+                // Долг снова активен - планируем уведомления
+                scheduleNotificationsIfEnabled()
+            }
+            
             saveDebts()
         }
     }
@@ -175,6 +192,14 @@ class DebtStore: ObservableObject {
         }
         
         saveDebts()
+    }
+    
+    // MARK: - Notifications
+    private func scheduleNotificationsIfEnabled() {
+        // Планируем уведомления только если они включены
+        if NotificationManager.shared.isNotificationEnabled {
+            NotificationManager.shared.scheduleNotificationsForDebts(activeDebts)
+        }
     }
     
     // MARK: - Persistence
