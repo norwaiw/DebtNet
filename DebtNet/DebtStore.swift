@@ -130,9 +130,38 @@ class DebtStore: ObservableObject {
             )
         ]
         
+        // Добавляем примеры погашенных долгов для архива
+        let paidSampleDebts = [
+            Debt(
+                debtorName: "Фадей",
+                amount: 10000,
+                description: "ТОРЧИТ СУЧКА",
+                dateCreated: Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date(),
+                dueDate: Calendar.current.date(byAdding: .year, value: 2, to: Date()),
+                isPaid: true,
+                category: .personal,
+                type: .owedToMe
+            ),
+            Debt(
+                debtorName: "Дмитрий Васильев",
+                amount: 7500,
+                description: "За продукты",
+                dateCreated: Calendar.current.date(byAdding: .day, value: -20, to: Date()) ?? Date(),
+                dueDate: nil,
+                isPaid: true,
+                category: .friend,
+                type: .iOwe
+            )
+        ]
+        
         for debt in sampleDebts {
             debts.append(debt)
         }
+        
+        for debt in paidSampleDebts {
+            debts.append(debt)
+        }
+        
         saveDebts()
     }
     
