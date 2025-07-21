@@ -218,12 +218,12 @@ struct DebtListView: View {
         .gesture(
             DragGesture()
                 .onChanged { value in
-                    if value.translation.y > 0 && !archivedDebts.isEmpty {
-                        dragOffset = value.translation.y
+                    if value.translation.height > 0 && !archivedDebts.isEmpty {
+                        dragOffset = value.translation.height
                     }
                 }
                 .onEnded { value in
-                    if value.translation.y > 100 && !archivedDebts.isEmpty {
+                    if value.translation.height > 100 && !archivedDebts.isEmpty {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             showingArchive = true
                         }
