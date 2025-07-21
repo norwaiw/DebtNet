@@ -46,7 +46,7 @@ struct DebtListView: View {
         }
         .sheet(isPresented: $showingAddDebt) {
             AddDebtView()
-                .preferredColorScheme(.dark)
+                .environmentObject(themeManager)
         }
         .alert("Удалить долг", isPresented: $showingDeleteAlert) {
             Button("Отмена", role: .cancel) { }
@@ -106,12 +106,13 @@ struct DebtListView: View {
                 }) {
                     Text(option.rawValue)
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(selectedFilter == option ? .white : .gray)
+                        .foregroundColor(selectedFilter == option ? .white : themeManager.secondaryTextColor)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .fill(selectedFilter == option ? Color.red : Color.gray.opacity(0.3))
+                                .fill(selectedFilter == option ? Color.red : themeManager.cardBackgroundColor)
+                                .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
                         )
                 }
             }
@@ -132,7 +133,7 @@ struct DebtListView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Мне должны")
                 .font(.system(size: 14))
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(themeManager.isDarkMode ? .white.opacity(0.7) : themeManager.secondaryTextColor)
             
             // Display amount with interest as the main amount (without the "С %" line)
             Text("\(Int(debtStore.totalOwedToMeWithInterest)) ₽")
@@ -147,7 +148,8 @@ struct DebtListView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.green.opacity(0.15))
+                .fill(themeManager.owedToMeCardBackground)
+                .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
         )
     }
     
@@ -155,7 +157,7 @@ struct DebtListView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Я должен")
                 .font(.system(size: 14))
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(themeManager.isDarkMode ? .white.opacity(0.7) : themeManager.secondaryTextColor)
             
             Text("\(Int(debtStore.totalIOwe)) ₽")
                 .font(.system(size: 20, weight: .bold))
@@ -169,7 +171,8 @@ struct DebtListView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.red.opacity(0.15))
+                .fill(themeManager.iOweCardBackground)
+                .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
         )
     }
     
@@ -181,11 +184,11 @@ struct DebtListView: View {
                 VStack(spacing: 4) {
                     Text("Архив (\(archivedDebts.count))")
                         .font(.system(size: 12))
-                        .foregroundColor(.gray)
+                        .foregroundColor(themeManager.secondaryTextColor)
                     
                     Image(systemName: "chevron.down")
                         .font(.system(size: 12))
-                        .foregroundColor(.gray)
+                        .foregroundColor(themeManager.secondaryTextColor)
                         .rotationEffect(.degrees(showingArchive ? 180 : 0))
                         .animation(.easeInOut(duration: 0.3), value: showingArchive)
                 }
@@ -252,7 +255,8 @@ struct DebtListView: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.gray.opacity(0.1))
+                    .fill(themeManager.cardBackgroundColor)
+                    .shadow(color: themeManager.shadowColor, radius: 3, x: 0, y: 2)
             )
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
@@ -263,7 +267,7 @@ struct DebtListView: View {
             Text("Архив погашенных долгов")
                 .font(.title2)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(themeManager.primaryTextColor)
             
             Spacer()
             
@@ -273,7 +277,7 @@ struct DebtListView: View {
                 }
             }) {
                 Image(systemName: "xmark")
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
                     .font(.title3)
             }
         }
@@ -313,6 +317,7 @@ struct DebtListView: View {
 struct DebtHistoryRowView: View {
     let debt: Debt
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     @State private var showingStatusChangeAlert = false
     @State private var swipeOffset: CGFloat = 0
     @State private var showingDeleteButton = false
@@ -366,16 +371,16 @@ struct DebtHistoryRowView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(debt.debtorName)
                 .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.white)
+                .foregroundColor(themeManager.primaryTextColor)
             
             Text(debt.description)
                 .font(.system(size: 14))
-                .foregroundColor(.gray)
+                .foregroundColor(themeManager.secondaryTextColor)
                 .lineLimit(1)
             
             Text(dateFormatter.string(from: debt.dateCreated))
                 .font(.system(size: 12))
-                .foregroundColor(.gray)
+                .foregroundColor(themeManager.secondaryTextColor)
         }
     }
     
@@ -392,11 +397,11 @@ struct DebtHistoryRowView: View {
                 
                 Text("\(String(format: "%.1f", debt.interestRate))%")
                     .font(.system(size: 10))
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
             } else {
                 Text("RUB")
                     .font(.system(size: 12))
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
             }
             
             // Quick status toggle button
@@ -421,7 +426,8 @@ struct DebtHistoryRowView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.gray.opacity(0.1))
+                .fill(themeManager.cardBackgroundColor)
+                .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
         )
         .offset(x: swipeOffset)
         .contentShape(Rectangle())
@@ -495,7 +501,7 @@ struct DebtHistoryRowView: View {
         }
         .sheet(isPresented: $showingDetail) {
             DebtDetailView(debt: debt)
-                .preferredColorScheme(.dark)
+                .environmentObject(themeManager)
         }
     }
 }
@@ -503,6 +509,7 @@ struct DebtHistoryRowView: View {
 struct ArchivedDebtRowView: View {
     let debt: Debt
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     @State private var showingStatusChangeAlert = false
     @State private var swipeOffset: CGFloat = 0
     @State private var showingDeleteButton = false
@@ -557,7 +564,7 @@ struct ArchivedDebtRowView: View {
             HStack {
                 Text(debt.debtorName)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
                     .strikethrough(true)
                 
                 Text("ПОГАШЕН")
@@ -573,12 +580,12 @@ struct ArchivedDebtRowView: View {
             
             Text(debt.description)
                 .font(.system(size: 14))
-                .foregroundColor(.gray)
+                .foregroundColor(themeManager.secondaryTextColor)
                 .lineLimit(1)
             
             Text(dateFormatter.string(from: debt.dateCreated))
                 .font(.system(size: 12))
-                .foregroundColor(.gray)
+                .foregroundColor(themeManager.secondaryTextColor)
         }
     }
     
@@ -586,22 +593,22 @@ struct ArchivedDebtRowView: View {
         VStack(alignment: .trailing, spacing: 4) {
             Text(debt.amountWithSign)
                 .font(.system(size: 16, weight: .bold))
-                .foregroundColor(.gray)
+                .foregroundColor(themeManager.secondaryTextColor)
                 .strikethrough(true)
             
             if debt.interestRate > 0 {
                 Text(debt.amountWithInterestAndSign)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.gray.opacity(0.8))
+                    .foregroundColor(themeManager.secondaryTextColor.opacity(0.8))
                     .strikethrough(true)
                 
                 Text("\(String(format: "%.1f", debt.interestRate))%")
                     .font(.system(size: 10))
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
             } else {
                 Text("RUB")
                     .font(.system(size: 12))
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeManager.secondaryTextColor)
             }
             
             // Quick status toggle button
@@ -626,7 +633,8 @@ struct ArchivedDebtRowView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.gray.opacity(0.05))
+                .fill(themeManager.cardSecondaryBackgroundColor)
+                .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
         )
         .opacity(0.7)
         .offset(x: swipeOffset)
@@ -701,7 +709,7 @@ struct ArchivedDebtRowView: View {
         }
         .sheet(isPresented: $showingDetail) {
             DebtDetailView(debt: debt)
-                .preferredColorScheme(.dark)
+                .environmentObject(themeManager)
         }
     }
 }
@@ -709,5 +717,5 @@ struct ArchivedDebtRowView: View {
 #Preview {
     DebtListView()
         .environmentObject(DebtStore())
-        .preferredColorScheme(.dark)
+        .environmentObject(ThemeManager())
 }

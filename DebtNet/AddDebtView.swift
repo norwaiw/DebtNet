@@ -3,6 +3,7 @@ import SwiftUI
 struct AddDebtView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     
     @State private var debtorName = ""
     @State private var amount = ""
@@ -20,7 +21,7 @@ struct AddDebtView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.ignoresSafeArea()
+                themeManager.backgroundColor.ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 24) {
@@ -29,21 +30,21 @@ struct AddDebtView: View {
                             Button("Отмена") {
                                 presentationMode.wrappedValue.dismiss()
                             }
-                            .foregroundColor(.gray)
+                            .foregroundColor(themeManager.secondaryTextColor)
                             
                             Spacer()
                             
                             Text("Новый долг")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(themeManager.primaryTextColor)
                             
                             Spacer()
                             
                             Button("Готово") {
                                 addDebt()
                             }
-                            .foregroundColor(isFormValid ? .blue : .gray)
+                            .foregroundColor(isFormValid ? .blue : themeManager.secondaryTextColor)
                             .disabled(!isFormValid)
                         }
                         .padding(.horizontal)
@@ -54,7 +55,7 @@ struct AddDebtView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Тип долга")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(themeManager.primaryTextColor)
                                 
                                 HStack(spacing: 12) {
                                     ForEach(Debt.DebtType.allCases, id: \.self) { type in
@@ -63,12 +64,13 @@ struct AddDebtView: View {
                                         }) {
                                             Text(type.rawValue)
                                                 .font(.system(size: 16))
-                                                .foregroundColor(debtType == type ? .white : .gray)
+                                                .foregroundColor(debtType == type ? .white : themeManager.secondaryTextColor)
                                                 .padding(.horizontal, 20)
                                                 .padding(.vertical, 12)
                                                 .background(
                                                     RoundedRectangle(cornerRadius: 25)
-                                                        .fill(debtType == type ? Color.blue : Color.gray.opacity(0.3))
+                                                        .fill(debtType == type ? Color.blue : themeManager.cardBackgroundColor)
+                                                        .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
                                                 )
                                         }
                                     }
@@ -81,7 +83,7 @@ struct AddDebtView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(debtType == .owedToMe ? "Имя должника" : "Кому должен")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(themeManager.primaryTextColor)
                                 
                                 TextField(debtType == .owedToMe ? "Введите имя должника" : "Введите имя кредитора", text: $debtorName)
                                     .textFieldStyle(DarkTextFieldStyle())
@@ -92,7 +94,7 @@ struct AddDebtView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Сумма")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(themeManager.primaryTextColor)
                                 
                                 HStack {
                                     TextField("0", text: $amount)
@@ -100,7 +102,7 @@ struct AddDebtView: View {
                                         .textFieldStyle(DarkTextFieldStyle())
                                     
                                     Text("₽")
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(themeManager.secondaryTextColor)
                                         .padding(.trailing, 12)
                                 }
                             }
@@ -111,7 +113,7 @@ struct AddDebtView: View {
                                 HStack {
                                     Text("Процентная ставка")
                                         .font(.headline)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(themeManager.primaryTextColor)
                                     
                                     Spacer()
                                     
@@ -126,7 +128,7 @@ struct AddDebtView: View {
                                             .textFieldStyle(DarkTextFieldStyle())
                                         
                                         Text("%")
-                                            .foregroundColor(.gray)
+                                            .foregroundColor(themeManager.secondaryTextColor)
                                             .padding(.trailing, 12)
                                     }
                                     
@@ -145,7 +147,7 @@ struct AddDebtView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Описание")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(themeManager.primaryTextColor)
                                 
                                 TextField("За что долг?", text: $description)
                                     .textFieldStyle(DarkTextFieldStyle())
@@ -156,7 +158,7 @@ struct AddDebtView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Категория")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(themeManager.primaryTextColor)
                                 
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 12) {
@@ -166,12 +168,13 @@ struct AddDebtView: View {
                                             }) {
                                                 Text(cat.rawValue)
                                                     .font(.system(size: 14))
-                                                    .foregroundColor(category == cat ? .white : .gray)
+                                                    .foregroundColor(category == cat ? .white : themeManager.secondaryTextColor)
                                                     .padding(.horizontal, 16)
                                                     .padding(.vertical, 8)
                                                     .background(
                                                         RoundedRectangle(cornerRadius: 20)
-                                                            .fill(category == cat ? Color.blue : Color.gray.opacity(0.3))
+                                                            .fill(category == cat ? Color.blue : themeManager.cardBackgroundColor)
+                                                            .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
                                                     )
                                             }
                                         }
@@ -185,7 +188,7 @@ struct AddDebtView: View {
                                 HStack {
                                     Text("Срок погашения")
                                         .font(.headline)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(themeManager.primaryTextColor)
                                     
                                     Spacer()
                                     
@@ -197,7 +200,7 @@ struct AddDebtView: View {
                                     DatePicker("Дата погашения", selection: $dueDate, displayedComponents: .date)
                                         .datePickerStyle(WheelDatePickerStyle())
                                         .labelsHidden()
-                                        .colorScheme(.dark)
+                                        .colorScheme(themeManager.isDarkMode ? .dark : .light)
                                 }
                             }
                             .padding(.horizontal)
@@ -250,19 +253,22 @@ struct AddDebtView: View {
 }
 
 struct DarkTextFieldStyle: TextFieldStyle {
+    @EnvironmentObject var themeManager: ThemeManager
+    
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.gray.opacity(0.2))
+                    .fill(themeManager.textFieldBackgroundColor)
+                    .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
             )
-            .foregroundColor(.white)
+            .foregroundColor(themeManager.primaryTextColor)
     }
 }
 
 #Preview {
     AddDebtView()
         .environmentObject(DebtStore())
-        .preferredColorScheme(.dark)
+        .environmentObject(ThemeManager())
 }

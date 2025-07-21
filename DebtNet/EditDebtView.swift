@@ -3,6 +3,7 @@ import SwiftUI
 struct EditDebtView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     
     let debt: Debt
     
@@ -35,7 +36,7 @@ struct EditDebtView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.ignoresSafeArea()
+                themeManager.backgroundColor.ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 24) {
@@ -44,21 +45,21 @@ struct EditDebtView: View {
                             Button("Отмена") {
                                 presentationMode.wrappedValue.dismiss()
                             }
-                            .foregroundColor(.gray)
+                            .foregroundColor(themeManager.secondaryTextColor)
                             
                             Spacer()
                             
                             Text("Редактировать долг")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(themeManager.primaryTextColor)
                             
                             Spacer()
                             
                             Button("Сохранить") {
                                 updateDebt()
                             }
-                            .foregroundColor(isFormValid ? .blue : .gray)
+                            .foregroundColor(isFormValid ? .blue : themeManager.secondaryTextColor)
                             .disabled(!isFormValid)
                         }
                         .padding(.horizontal)
@@ -69,7 +70,7 @@ struct EditDebtView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Тип долга")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(themeManager.primaryTextColor)
                                 
                                 HStack(spacing: 12) {
                                     ForEach(Debt.DebtType.allCases, id: \.self) { type in
@@ -78,12 +79,13 @@ struct EditDebtView: View {
                                         }) {
                                             Text(type.rawValue)
                                                 .font(.system(size: 16))
-                                                .foregroundColor(debtType == type ? .white : .gray)
+                                                .foregroundColor(debtType == type ? .white : themeManager.secondaryTextColor)
                                                 .padding(.horizontal, 20)
                                                 .padding(.vertical, 12)
                                                 .background(
                                                     RoundedRectangle(cornerRadius: 25)
-                                                        .fill(debtType == type ? Color.blue : Color.gray.opacity(0.3))
+                                                        .fill(debtType == type ? Color.blue : themeManager.cardBackgroundColor)
+                                                        .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
                                                 )
                                         }
                                     }
@@ -96,7 +98,7 @@ struct EditDebtView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(debtType == .owedToMe ? "Имя должника" : "Кому должен")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(themeManager.primaryTextColor)
                                 
                                 TextField(debtType == .owedToMe ? "Введите имя должника" : "Введите имя кредитора", text: $debtorName)
                                     .textFieldStyle(DarkTextFieldStyle())
@@ -107,7 +109,7 @@ struct EditDebtView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Сумма")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(themeManager.primaryTextColor)
                                 
                                 HStack {
                                     TextField("0", text: $amount)
@@ -115,7 +117,7 @@ struct EditDebtView: View {
                                         .textFieldStyle(DarkTextFieldStyle())
                                     
                                     Text("₽")
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(themeManager.secondaryTextColor)
                                         .padding(.trailing, 12)
                                 }
                             }
@@ -126,7 +128,7 @@ struct EditDebtView: View {
                                 HStack {
                                     Text("Процентная ставка")
                                         .font(.headline)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(themeManager.primaryTextColor)
                                     
                                     Spacer()
                                     
@@ -141,7 +143,7 @@ struct EditDebtView: View {
                                             .textFieldStyle(DarkTextFieldStyle())
                                         
                                         Text("%")
-                                            .foregroundColor(.gray)
+                                            .foregroundColor(themeManager.secondaryTextColor)
                                             .padding(.trailing, 12)
                                     }
                                     
@@ -160,7 +162,7 @@ struct EditDebtView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Описание")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(themeManager.primaryTextColor)
                                 
                                 TextField("За что долг?", text: $description)
                                     .textFieldStyle(DarkTextFieldStyle())
@@ -171,7 +173,7 @@ struct EditDebtView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Категория")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(themeManager.primaryTextColor)
                                 
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 12) {
@@ -181,12 +183,13 @@ struct EditDebtView: View {
                                             }) {
                                                 Text(cat.rawValue)
                                                     .font(.system(size: 14))
-                                                    .foregroundColor(category == cat ? .white : .gray)
+                                                    .foregroundColor(category == cat ? .white : themeManager.secondaryTextColor)
                                                     .padding(.horizontal, 16)
                                                     .padding(.vertical, 8)
                                                     .background(
                                                         RoundedRectangle(cornerRadius: 20)
-                                                            .fill(category == cat ? Color.blue : Color.gray.opacity(0.3))
+                                                            .fill(category == cat ? Color.blue : themeManager.cardBackgroundColor)
+                                                        .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
                                                     )
                                             }
                                         }
@@ -200,7 +203,7 @@ struct EditDebtView: View {
                                 HStack {
                                     Text("Срок погашения")
                                         .font(.headline)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(themeManager.primaryTextColor)
                                     
                                     Spacer()
                                     
@@ -212,7 +215,7 @@ struct EditDebtView: View {
                                     DatePicker("Дата погашения", selection: $dueDate, displayedComponents: .date)
                                         .datePickerStyle(WheelDatePickerStyle())
                                         .labelsHidden()
-                                        .colorScheme(.dark)
+                                        .colorScheme(themeManager.isDarkMode ? .dark : .light)
                                 }
                             }
                             .padding(.horizontal)
@@ -274,5 +277,5 @@ struct EditDebtView: View {
         interestRate: 5.0
     ))
     .environmentObject(DebtStore())
-    .preferredColorScheme(.dark)
+    .environmentObject(ThemeManager())
 }
