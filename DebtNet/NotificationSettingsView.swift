@@ -211,7 +211,11 @@ struct NotificationSettingsView: View {
     
     private func loadPendingNotifications() {
         notificationManager.getPendingNotifications { notifications in
-            self.pendingNotifications = notifications.sorted { $0.trigger?.nextTriggerDate() ?? Date.distantFuture < $1.trigger?.nextTriggerDate() ?? Date.distantFuture }
+            self.pendingNotifications = notifications.sorted { 
+                let date1 = ($0.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate() ?? Date.distantFuture
+                let date2 = ($1.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate() ?? Date.distantFuture
+                return date1 < date2
+            }
         }
     }
 }
@@ -231,7 +235,7 @@ struct NotificationRowView: View {
                 .foregroundColor(.secondary)
                 .lineLimit(2)
             
-            if let triggerDate = notification.trigger?.nextTriggerDate() {
+            if let triggerDate = (notification.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate() {
                 Text(formatDate(triggerDate))
                     .font(.caption)
                     .foregroundColor(.blue)
@@ -304,15 +308,7 @@ struct DebtNotificationRowView: View {
     }
 }
 
-// MARK: - Extension
-extension UNNotificationTrigger {
-    func nextTriggerDate() -> Date? {
-        if let calendarTrigger = self as? UNCalendarNotificationTrigger {
-            return calendarTrigger.nextTriggerDate()
-        }
-        return nil
-    }
-}
+
 
 #Preview {
     NotificationSettingsView()
