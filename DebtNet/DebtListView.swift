@@ -138,9 +138,15 @@ struct DebtListView: View {
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.green)
             
-            // Removed interest percentage display
-            Text(" ")
-                .font(.system(size: 16, weight: .semibold))
+            if debtStore.totalOwedToMeWithInterest != debtStore.totalOwedToMe {
+                Text("С %: \(Int(debtStore.totalOwedToMeWithInterest)) ₽")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.green.opacity(0.8))
+            } else {
+                // Add spacing to match the other card height
+                Text(" ")
+                    .font(.system(size: 16, weight: .semibold))
+            }
         }
         .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
         .padding()
