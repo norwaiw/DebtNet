@@ -390,7 +390,7 @@ struct DebtHistoryRowView: View {
             if debt.interestRate > 0 {
                 Text(debt.amountWithInterestAndSign)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor((debt.type == .owedToMe ? .green : .red).opacity(0.8))
+                    .foregroundColor((debt.type == .owedToMe ? Color.green : Color.red).opacity(0.8))
                 
                 Text("\(String(format: "%.1f", debt.interestRate))%")
                     .font(.system(size: 10))
