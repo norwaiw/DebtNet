@@ -11,6 +11,8 @@ struct AddDebtView: View {
     @State private var debtType: Debt.DebtType = .owedToMe
     @State private var hasDueDate = false
     @State private var dueDate = Date()
+    @State private var interestRate = ""
+    @State private var hasInterest = false
     
     @State private var showingAlert = false
     @State private var alertMessage = ""
@@ -100,6 +102,41 @@ struct AddDebtView: View {
                                     Text("₽")
                                         .foregroundColor(.gray)
                                         .padding(.trailing, 12)
+                                }
+                            }
+                            .padding(.horizontal)
+                            
+                            // Interest Rate
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text("Процентная ставка")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    
+                                    Spacer()
+                                    
+                                    Toggle("", isOn: $hasInterest)
+                                        .labelsHidden()
+                                }
+                                
+                                if hasInterest {
+                                    HStack {
+                                        TextField("0", text: $interestRate)
+                                            .keyboardType(.decimalPad)
+                                            .textFieldStyle(DarkTextFieldStyle())
+                                        
+                                        Text("%")
+                                            .foregroundColor(.gray)
+                                            .padding(.trailing, 12)
+                                    }
+                                    
+                                    if let amountValue = Double(amount), let rateValue = Double(interestRate), amountValue > 0, rateValue >= 0 {
+                                        let totalAmount = amountValue * (1 + rateValue / 100)
+                                        Text("Итого с процентами: \(String(format: "%.0f", totalAmount)) ₽")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.green)
+                                            .padding(.top, 4)
+                                    }
                                 }
                             }
                             .padding(.horizontal)
@@ -194,6 +231,8 @@ struct AddDebtView: View {
             return
         }
         
+        let interestRateValue = hasInterest ? (Double(interestRate) ?? 0.0) : 0.0
+        
         let newDebt = Debt(
             debtorName: debtorName.trimmingCharacters(in: .whitespacesAndNewlines),
             amount: amountValue,
@@ -201,7 +240,8 @@ struct AddDebtView: View {
             dateCreated: Date(),
             dueDate: hasDueDate ? dueDate : nil,
             category: category,
-            type: debtType
+            type: debtType,
+            interestRate: interestRateValue
         )
         
         debtStore.addDebt(newDebt)
