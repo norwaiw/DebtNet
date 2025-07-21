@@ -4,6 +4,8 @@ struct DebtListView: View {
     @EnvironmentObject var debtStore: DebtStore
     @State private var showingAddDebt = false
     @State private var selectedFilter: FilterOption = .all
+    @State private var showingDeleteAlert = false
+    @State private var debtToDelete: Debt?
     
     enum FilterOption: String, CaseIterable {
         case all = "Все"
@@ -114,6 +116,22 @@ struct DebtListView: View {
                         LazyVStack(spacing: 12) {
                             ForEach(filteredDebts) { debt in
                                 DebtHistoryRowView(debt: debt)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) {
+                                            debtToDelete = debt
+                                            showingDeleteAlert = true
+                                        } label: {
+                                            Label("Удалить", systemImage: "trash")
+                                        }
+                                        .tint(.red)
+                                        
+                                        Button {
+                                            debtStore.markAsPaid(debt)
+                                        } label: {
+                                            Label("Оплачено", systemImage: "checkmark")
+                                        }
+                                        .tint(.green)
+                                    }
                             }
                         }
                         .padding(.horizontal)
@@ -127,6 +145,19 @@ struct DebtListView: View {
         .sheet(isPresented: $showingAddDebt) {
             AddDebtView()
                 .preferredColorScheme(.dark)
+        }
+        .alert("Удалить долг", isPresented: $showingDeleteAlert) {
+            Button("Отмена", role: .cancel) { }
+            Button("Удалить", role: .destructive) {
+                if let debt = debtToDelete {
+                    debtStore.deleteDebt(debt)
+                }
+                debtToDelete = nil
+            }
+        } message: {
+            if let debt = debtToDelete {
+                Text("Вы уверены, что хотите удалить долг от \(debt.debtorName) на сумму \(debt.formattedAmount)?")
+            }
         }
     }
 }
