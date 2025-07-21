@@ -184,7 +184,7 @@ struct DebtListView: View {
             .padding(.horizontal)
             .onTapGesture {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    showingArchive.toggle()
+                    showingArchive = true
                 }
             }
         }
@@ -304,6 +304,8 @@ struct DebtHistoryRowView: View {
     let debt: Debt
     @EnvironmentObject var debtStore: DebtStore
     @State private var showingStatusChangeAlert = false
+    @State private var swipeOffset: CGFloat = 0
+    @State private var showingDeleteButton = false
     
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -313,61 +315,136 @@ struct DebtHistoryRowView: View {
     }
     
     var body: some View {
-        HStack(spacing: 16) {
-            // Icon
-            Circle()
-                .fill(debt.type == .owedToMe ? Color.green : Color.red)
-                .frame(width: 40, height: 40)
-                .overlay(
-                    Image(systemName: debt.type == .owedToMe ? "arrow.down" : "arrow.up")
+        ZStack {
+            // Background delete action
+            HStack {
+                Spacer()
+                
+                if showingDeleteButton {
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            swipeOffset = 0
+                            showingDeleteButton = false
+                        }
+                        // Add a small delay before showing the alert
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            debtStore.deleteDebt(debt)
+                        }
+                    }) {
+                        VStack {
+                            Image(systemName: "trash.fill")
+                                .font(.system(size: 20, weight: .bold))
+                            Text("Удалить")
+                                .font(.system(size: 12, weight: .medium))
+                        }
                         .foregroundColor(.white)
-                        .font(.system(size: 16, weight: .bold))
-                )
-            
-            // Content
-            VStack(alignment: .leading, spacing: 4) {
-                Text(debt.debtorName)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
-                
-                Text(debt.description)
-                    .font(.system(size: 14))
-                    .foregroundColor(.gray)
-                    .lineLimit(1)
-                
-                Text(dateFormatter.string(from: debt.dateCreated))
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
-            }
-            
-            Spacer()
-            
-            // Amount and status button
-            VStack(alignment: .trailing, spacing: 8) {
-                Text(debt.amountWithSign)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(debt.type == .owedToMe ? .green : .red)
-                
-                Text("RUB")
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
-                
-                // Quick status toggle button
-                Button(action: {
-                    showingStatusChangeAlert = true
-                }) {
-                    Image(systemName: "checkmark.circle")
-                        .foregroundColor(.green)
-                        .font(.system(size: 20))
+                        .frame(width: 80, height: 60)
+                        .background(Color.red)
+                        .cornerRadius(12)
+                    }
+                    .padding(.trailing, 16)
                 }
-                .buttonStyle(PlainButtonStyle())
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            
+            // Main content
+            HStack(spacing: 16) {
+                // Icon
+                Circle()
+                    .fill(debt.type == .owedToMe ? Color.green : Color.red)
+                    .frame(width: 40, height: 40)
+                    .overlay(
+                        Image(systemName: debt.type == .owedToMe ? "arrow.down" : "arrow.up")
+                            .foregroundColor(.white)
+                            .font(.system(size: 16, weight: .bold))
+                    )
+                
+                // Content
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(debt.debtorName)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                    
+                    Text(debt.description)
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                    
+                    Text(dateFormatter.string(from: debt.dateCreated))
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                // Amount and status button
+                VStack(alignment: .trailing, spacing: 8) {
+                    Text(debt.amountWithSign)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(debt.type == .owedToMe ? .green : .red)
+                    
+                    Text("RUB")
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
+                    
+                    // Quick status toggle button
+                    Button(action: {
+                        showingStatusChangeAlert = true
+                    }) {
+                        Image(systemName: "checkmark.circle")
+                            .foregroundColor(.green)
+                            .font(.system(size: 20))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.gray.opacity(0.1))
+            )
+            .offset(x: swipeOffset)
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        // Only allow swiping left (negative translation)
+                        if value.translation.x < 0 {
+                            withAnimation(.easeOut(duration: 0.1)) {
+                                swipeOffset = max(value.translation.x, -100)
+                                showingDeleteButton = swipeOffset < -50
+                            }
+                        }
+                    }
+                    .onEnded { value in
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            if value.translation.x < -80 {
+                                // If swiped far enough, show delete button
+                                swipeOffset = -100
+                                showingDeleteButton = true
+                            } else {
+                                // Snap back to original position
+                                swipeOffset = 0
+                                showingDeleteButton = false
+                            }
+                        }
+                    }
+            )
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.gray.opacity(0.1))
-        )
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                debtStore.deleteDebt(debt)
+            } label: {
+                Label("Удалить", systemImage: "trash")
+            }
+            .tint(.red)
+            
+            Button {
+                debtStore.togglePaidStatus(debt)
+            } label: {
+                Label("Оплачено", systemImage: "checkmark")
+            }
+            .tint(.green)
+        }
         .alert("Отметить долг как погашенный?", isPresented: $showingStatusChangeAlert) {
             Button("Отмена", role: .cancel) { }
             Button("Погасить", role: .destructive) {
@@ -383,6 +460,8 @@ struct ArchivedDebtRowView: View {
     let debt: Debt
     @EnvironmentObject var debtStore: DebtStore
     @State private var showingStatusChangeAlert = false
+    @State private var swipeOffset: CGFloat = 0
+    @State private var showingDeleteButton = false
     
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -392,76 +471,151 @@ struct ArchivedDebtRowView: View {
     }
     
     var body: some View {
-        HStack(spacing: 16) {
-            // Icon
-            Circle()
-                .fill(Color.gray)
-                .frame(width: 40, height: 40)
-                .overlay(
-                    Image(systemName: "checkmark")
+        ZStack {
+            // Background delete action
+            HStack {
+                Spacer()
+                
+                if showingDeleteButton {
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            swipeOffset = 0
+                            showingDeleteButton = false
+                        }
+                        // Add a small delay before deleting
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            debtStore.deleteDebt(debt)
+                        }
+                    }) {
+                        VStack {
+                            Image(systemName: "trash.fill")
+                                .font(.system(size: 20, weight: .bold))
+                            Text("Удалить")
+                                .font(.system(size: 12, weight: .medium))
+                        }
                         .foregroundColor(.white)
-                        .font(.system(size: 16, weight: .bold))
-                )
+                        .frame(width: 80, height: 60)
+                        .background(Color.red)
+                        .cornerRadius(12)
+                    }
+                    .padding(.trailing, 16)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             
-            // Content
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(debt.debtorName)
-                        .font(.system(size: 16, weight: .medium))
+            // Main content
+            HStack(spacing: 16) {
+                // Icon
+                Circle()
+                    .fill(Color.gray)
+                    .frame(width: 40, height: 40)
+                    .overlay(
+                        Image(systemName: "checkmark")
+                            .foregroundColor(.white)
+                            .font(.system(size: 16, weight: .bold))
+                    )
+                
+                // Content
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(debt.debtorName)
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.gray)
+                            .strikethrough(true)
+                        
+                        Text("ПОГАШЕН")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.green)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(Color.green.opacity(0.2))
+                            )
+                    }
+                    
+                    Text(debt.description)
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                    
+                    Text(dateFormatter.string(from: debt.dateCreated))
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                // Amount and status button
+                VStack(alignment: .trailing, spacing: 8) {
+                    Text(debt.amountWithSign)
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.gray)
                         .strikethrough(true)
                     
-                    Text("ПОГАШЕН")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(.green)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.green.opacity(0.2))
-                        )
+                    Text("RUB")
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
+                    
+                    // Quick status toggle button
+                    Button(action: {
+                        showingStatusChangeAlert = true
+                    }) {
+                        Image(systemName: "arrow.uturn.left.circle")
+                            .foregroundColor(.orange)
+                            .font(.system(size: 20))
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
-                
-                Text(debt.description)
-                    .font(.system(size: 14))
-                    .foregroundColor(.gray)
-                    .lineLimit(1)
-                
-                Text(dateFormatter.string(from: debt.dateCreated))
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
             }
-            
-            Spacer()
-            
-            // Amount and status button
-            VStack(alignment: .trailing, spacing: 8) {
-                Text(debt.amountWithSign)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.gray)
-                    .strikethrough(true)
-                
-                Text("RUB")
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
-                
-                // Quick status toggle button
-                Button(action: {
-                    showingStatusChangeAlert = true
-                }) {
-                    Image(systemName: "arrow.uturn.left.circle")
-                        .foregroundColor(.orange)
-                        .font(.system(size: 20))
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.gray.opacity(0.05))
+            )
+            .opacity(0.7)
+            .offset(x: swipeOffset)
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        // Only allow swiping left (negative translation)
+                        if value.translation.x < 0 {
+                            withAnimation(.easeOut(duration: 0.1)) {
+                                swipeOffset = max(value.translation.x, -100)
+                                showingDeleteButton = swipeOffset < -50
+                            }
+                        }
+                    }
+                    .onEnded { value in
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            if value.translation.x < -80 {
+                                // If swiped far enough, show delete button
+                                swipeOffset = -100
+                                showingDeleteButton = true
+                            } else {
+                                // Snap back to original position
+                                swipeOffset = 0
+                                showingDeleteButton = false
+                            }
+                        }
+                    }
+            )
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.gray.opacity(0.05))
-        )
-        .opacity(0.7)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                debtStore.deleteDebt(debt)
+            } label: {
+                Label("Удалить", systemImage: "trash")
+            }
+            .tint(.red)
+            
+            Button {
+                debtStore.togglePaidStatus(debt)
+            } label: {
+                Label("Вернуть", systemImage: "arrow.uturn.left")
+            }
+            .tint(.orange)
+        }
         .alert("Вернуть долг в активное состояние?", isPresented: $showingStatusChangeAlert) {
             Button("Отмена", role: .cancel) { }
             Button("Вернуть", role: .none) {
