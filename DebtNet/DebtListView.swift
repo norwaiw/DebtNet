@@ -306,6 +306,7 @@ struct DebtHistoryRowView: View {
     @State private var showingStatusChangeAlert = false
     @State private var swipeOffset: CGFloat = 0
     @State private var showingDeleteButton = false
+    @State private var showingDetail = false
     
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -404,6 +405,10 @@ struct DebtHistoryRowView: View {
                     .fill(Color.gray.opacity(0.1))
             )
             .offset(x: swipeOffset)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                showingDetail = true
+            }
             .gesture(
                 DragGesture()
                     .onChanged { value in
@@ -453,6 +458,10 @@ struct DebtHistoryRowView: View {
         } message: {
             Text("Вы уверены, что долг от \(debt.debtorName) на сумму \(debt.formattedAmount) погашен?")
         }
+        .sheet(isPresented: $showingDetail) {
+            DebtDetailView(debt: debt)
+                .preferredColorScheme(.dark)
+        }
     }
 }
 
@@ -462,6 +471,7 @@ struct ArchivedDebtRowView: View {
     @State private var showingStatusChangeAlert = false
     @State private var swipeOffset: CGFloat = 0
     @State private var showingDeleteButton = false
+    @State private var showingDetail = false
     
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -575,6 +585,10 @@ struct ArchivedDebtRowView: View {
             )
             .opacity(0.7)
             .offset(x: swipeOffset)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                showingDetail = true
+            }
             .gesture(
                 DragGesture()
                     .onChanged { value in
@@ -623,6 +637,10 @@ struct ArchivedDebtRowView: View {
             }
         } message: {
             Text("Долг от \(debt.debtorName) на сумму \(debt.formattedAmount) будет возвращён в активное состояние")
+        }
+        .sheet(isPresented: $showingDetail) {
+            DebtDetailView(debt: debt)
+                .preferredColorScheme(.dark)
         }
     }
 }
