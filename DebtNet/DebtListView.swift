@@ -408,16 +408,16 @@ struct DebtHistoryRowView: View {
                 DragGesture()
                     .onChanged { value in
                         // Only allow swiping left (negative translation)
-                        if value.translation.x < 0 {
+                        if value.translation.width < 0 {
                             withAnimation(.easeOut(duration: 0.1)) {
-                                swipeOffset = max(value.translation.x, -100)
+                                swipeOffset = max(value.translation.width, -100)
                                 showingDeleteButton = swipeOffset < -50
                             }
                         }
                     }
                     .onEnded { value in
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                            if value.translation.x < -80 {
+                            if value.translation.width < -80 {
                                 // If swiped far enough, show delete button
                                 swipeOffset = -100
                                 showingDeleteButton = true
@@ -579,16 +579,16 @@ struct ArchivedDebtRowView: View {
                 DragGesture()
                     .onChanged { value in
                         // Only allow swiping left (negative translation)
-                        if value.translation.x < 0 {
+                        if value.translation.width < 0 {
                             withAnimation(.easeOut(duration: 0.1)) {
-                                swipeOffset = max(value.translation.x, -100)
+                                swipeOffset = max(value.translation.width, -100)
                                 showingDeleteButton = swipeOffset < -50
                             }
                         }
                     }
                     .onEnded { value in
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                            if value.translation.x < -80 {
+                            if value.translation.width < -80 {
                                 // If swiped far enough, show delete button
                                 swipeOffset = -100
                                 showingDeleteButton = true
