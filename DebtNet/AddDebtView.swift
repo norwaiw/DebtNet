@@ -30,7 +30,7 @@ struct AddDebtView: View {
                             Button("Отмена") {
                                 presentationMode.wrappedValue.dismiss()
                             }
-                            .foregroundColor(themeManager.secondaryTextColor)
+                            .foregroundColor(Color.gray.opacity(0.8))
                             
                             Spacer()
                             
@@ -44,7 +44,7 @@ struct AddDebtView: View {
                             Button("Готово") {
                                 addDebt()
                             }
-                            .foregroundColor(isFormValid ? .blue : themeManager.secondaryTextColor)
+                            .foregroundColor(isFormValid ? Color.gray.opacity(0.8) : themeManager.secondaryTextColor)
                             .disabled(!isFormValid)
                         }
                         .padding(.horizontal)
@@ -69,7 +69,7 @@ struct AddDebtView: View {
                                                 .padding(.vertical, 12)
                                                 .background(
                                                     RoundedRectangle(cornerRadius: 25)
-                                                        .fill(debtType == type ? Color.blue : themeManager.cardBackgroundColor)
+                                                        .fill(debtType == type ? (type == .owedToMe ? Color.green : Color.red) : themeManager.cardBackgroundColor)
                                                         .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
                                                 )
                                         }
@@ -173,7 +173,7 @@ struct AddDebtView: View {
                                                     .padding(.vertical, 8)
                                                     .background(
                                                         RoundedRectangle(cornerRadius: 20)
-                                                            .fill(category == cat ? Color.blue : themeManager.cardBackgroundColor)
+                                                            .fill(category == cat ? Color.gray.opacity(0.7) : themeManager.cardBackgroundColor)
                                                             .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
                                                     )
                                             }
