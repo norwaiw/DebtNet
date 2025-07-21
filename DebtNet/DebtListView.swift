@@ -37,218 +37,8 @@ struct DebtListView: View {
                 Color.black.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    // Main Content
-                    VStack(spacing: 20) {
-                        // Header
-                        HStack {
-                            Text("История долгов")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            
-                            Spacer()
-                            
-                            Button(action: {
-                                showingAddDebt = true
-                            }) {
-                                Image(systemName: "plus")
-                                    .foregroundColor(.red)
-                                    .font(.title2)
-                                    .frame(width: 40, height: 40)
-                                    .background(Circle().fill(Color.red))
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        .padding(.horizontal)
-                        
-                        // Filter Buttons
-                        HStack(spacing: 12) {
-                            ForEach(FilterOption.allCases, id: \.self) { option in
-                                Button(action: {
-                                    selectedFilter = option
-                                }) {
-                                    Text(option.rawValue)
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(selectedFilter == option ? .white : .gray)
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 8)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .fill(selectedFilter == option ? Color.red : Color.gray.opacity(0.3))
-                                        )
-                                }
-                            }
-                            Spacer()
-                        }
-                        .padding(.horizontal)
-                        
-                        // Summary Cards
-                        HStack(spacing: 16) {
-                            // Мне должны (Green)
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Мне должны")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.white.opacity(0.7))
-                                
-                                Text("\(Int(debtStore.totalOwedToMe)) ₽")
-                                    .font(.system(size: 24, weight: .bold))
-                                    .foregroundColor(.green)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.green.opacity(0.15))
-                            )
-                            
-                            // Я должен (Red)
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Я должен")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.white.opacity(0.7))
-                                
-                                Text("\(Int(debtStore.totalIOwe)) ₽")
-                                    .font(.system(size: 24, weight: .bold))
-                                    .foregroundColor(.red)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.red.opacity(0.15))
-                            )
-                        }
-                        .padding(.horizontal)
-                        
-                        // Archive Indicator
-                        if !archivedDebts.isEmpty {
-                            HStack {
-                                Spacer()
-                                VStack(spacing: 4) {
-                                    Text("Архив (\(archivedDebts.count))")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.gray)
-                                    
-                                    Image(systemName: "chevron.down")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.gray)
-                                        .rotationEffect(.degrees(showingArchive ? 180 : 0))
-                                        .animation(.easeInOut(duration: 0.3), value: showingArchive)
-                                }
-                                Spacer()
-                            }
-                            .padding(.horizontal)
-                                                         .onTapGesture {
-                                 withAnimation(.easeInOut(duration: 0.3)) {
-                                     showingArchive.toggle()
-                                 }
-                             }
-                        }
-                        
-                        // Debt List
-                        ScrollView {
-                            LazyVStack(spacing: 12) {
-                                ForEach(filteredDebts) { debt in
-                                    DebtHistoryRowView(debt: debt)
-                                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                            Button(role: .destructive) {
-                                                debtToDelete = debt
-                                                showingDeleteAlert = true
-                                            } label: {
-                                                Label("Удалить", systemImage: "trash")
-                                            }
-                                            .tint(.red)
-                                            
-                                            Button {
-                                                debtStore.togglePaidStatus(debt)
-                                            } label: {
-                                                Label("Оплачено", systemImage: "checkmark")
-                                            }
-                                            .tint(.green)
-                                        }
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                        .gesture(
-                            DragGesture()
-                                .onChanged { value in
-                                    if value.translation.y > 0 && !archivedDebts.isEmpty {
-                                        dragOffset = value.translation.y
-                                    }
-                                }
-                                .onEnded { value in
-                                    if value.translation.y > 100 && !archivedDebts.isEmpty {
-                                        withAnimation(.easeInOut(duration: 0.3)) {
-                                            showingArchive = true
-                                        }
-                                    }
-                                    dragOffset = 0
-                                }
-                        )
-                        
-                        Spacer()
-                    }
-                    .offset(y: dragOffset * 0.3)
-                    
-                    // Archive Section
-                    if showingArchive && !archivedDebts.isEmpty {
-                        VStack(spacing: 16) {
-                            // Archive Header
-                            HStack {
-                                Text("Архив погашенных долгов")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                
-                                Spacer()
-                                
-                                Button(action: {
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        showingArchive = false
-                                    }
-                                }) {
-                                    Image(systemName: "xmark")
-                                        .foregroundColor(.gray)
-                                        .font(.title3)
-                                }
-                            }
-                            .padding(.horizontal)
-                            .padding(.top)
-                            
-                            // Archive List
-                            ScrollView {
-                                LazyVStack(spacing: 12) {
-                                    ForEach(archivedDebts) { debt in
-                                        ArchivedDebtRowView(debt: debt)
-                                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                                Button(role: .destructive) {
-                                                    debtToDelete = debt
-                                                    showingDeleteAlert = true
-                                                } label: {
-                                                    Label("Удалить", systemImage: "trash")
-                                                }
-                                                .tint(.red)
-                                                
-                                                Button {
-                                                    debtStore.togglePaidStatus(debt)
-                                                } label: {
-                                                    Label("Вернуть", systemImage: "arrow.uturn.left")
-                                                }
-                                                .tint(.orange)
-                                            }
-                                    }
-                                }
-                                .padding(.horizontal)
-                            }
-                            .frame(maxHeight: 400)
-                        }
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.gray.opacity(0.1))
-                        )
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                    }
+                    mainContentView
+                    archiveSection
                 }
             }
             .navigationBarHidden(true)
@@ -270,6 +60,243 @@ struct DebtListView: View {
                 Text("Вы уверены, что хотите удалить долг от \(debt.debtorName) на сумму \(debt.formattedAmount)?")
             }
         }
+    }
+    
+    private var mainContentView: some View {
+        VStack(spacing: 20) {
+            headerView
+            filterButtonsView
+            summaryCardsView
+            archiveIndicatorView
+            debtListView
+            Spacer()
+        }
+        .offset(y: dragOffset * 0.3)
+    }
+    
+    private var headerView: some View {
+        HStack {
+            Text("История долгов")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            Spacer()
+            
+            Button(action: {
+                showingAddDebt = true
+            }) {
+                Image(systemName: "plus")
+                    .foregroundColor(.red)
+                    .font(.title2)
+                    .frame(width: 40, height: 40)
+                    .background(Circle().fill(Color.red))
+                    .foregroundColor(.white)
+            }
+        }
+        .padding(.horizontal)
+    }
+    
+    private var filterButtonsView: some View {
+        HStack(spacing: 12) {
+            ForEach(FilterOption.allCases, id: \.self) { option in
+                Button(action: {
+                    selectedFilter = option
+                }) {
+                    Text(option.rawValue)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(selectedFilter == option ? .white : .gray)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(selectedFilter == option ? Color.red : Color.gray.opacity(0.3))
+                        )
+                }
+            }
+            Spacer()
+        }
+        .padding(.horizontal)
+    }
+    
+    private var summaryCardsView: some View {
+        HStack(spacing: 16) {
+            owedToMeCard
+            iOweCard
+        }
+        .padding(.horizontal)
+    }
+    
+    private var owedToMeCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Мне должны")
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.7))
+            
+            Text("\(Int(debtStore.totalOwedToMe)) ₽")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(.green)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.green.opacity(0.15))
+        )
+    }
+    
+    private var iOweCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Я должен")
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.7))
+            
+            Text("\(Int(debtStore.totalIOwe)) ₽")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(.red)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.red.opacity(0.15))
+        )
+    }
+    
+    @ViewBuilder
+    private var archiveIndicatorView: some View {
+        if !archivedDebts.isEmpty {
+            HStack {
+                Spacer()
+                VStack(spacing: 4) {
+                    Text("Архив (\(archivedDebts.count))")
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
+                    
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
+                        .rotationEffect(.degrees(showingArchive ? 180 : 0))
+                        .animation(.easeInOut(duration: 0.3), value: showingArchive)
+                }
+                Spacer()
+            }
+            .padding(.horizontal)
+            .onTapGesture {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showingArchive.toggle()
+                }
+            }
+        }
+    }
+    
+    private var debtListView: some View {
+        ScrollView {
+            LazyVStack(spacing: 12) {
+                ForEach(filteredDebts) { debt in
+                    DebtHistoryRowView(debt: debt)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                debtToDelete = debt
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Удалить", systemImage: "trash")
+                            }
+                            .tint(.red)
+                            
+                            Button {
+                                debtStore.togglePaidStatus(debt)
+                            } label: {
+                                Label("Оплачено", systemImage: "checkmark")
+                            }
+                            .tint(.green)
+                        }
+                }
+            }
+            .padding(.horizontal)
+        }
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    if value.translation.y > 0 && !archivedDebts.isEmpty {
+                        dragOffset = value.translation.y
+                    }
+                }
+                .onEnded { value in
+                    if value.translation.y > 100 && !archivedDebts.isEmpty {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showingArchive = true
+                        }
+                    }
+                    dragOffset = 0
+                }
+        )
+    }
+    
+    @ViewBuilder
+    private var archiveSection: some View {
+        if showingArchive && !archivedDebts.isEmpty {
+            VStack(spacing: 16) {
+                archiveHeaderView
+                archiveListView
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.gray.opacity(0.1))
+            )
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+    }
+    
+    private var archiveHeaderView: some View {
+        HStack {
+            Text("Архив погашенных долгов")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            Spacer()
+            
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showingArchive = false
+                }
+            }) {
+                Image(systemName: "xmark")
+                    .foregroundColor(.gray)
+                    .font(.title3)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.top)
+    }
+    
+    private var archiveListView: some View {
+        ScrollView {
+            LazyVStack(spacing: 12) {
+                ForEach(archivedDebts) { debt in
+                    ArchivedDebtRowView(debt: debt)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                debtToDelete = debt
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Удалить", systemImage: "trash")
+                            }
+                            .tint(.red)
+                            
+                            Button {
+                                debtStore.togglePaidStatus(debt)
+                            } label: {
+                                Label("Вернуть", systemImage: "arrow.uturn.left")
+                            }
+                            .tint(.orange)
+                        }
+                }
+            }
+            .padding(.horizontal)
+        }
+        .frame(maxHeight: 400)
     }
 }
 
