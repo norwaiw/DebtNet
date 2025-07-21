@@ -133,7 +133,8 @@ struct DebtListView: View {
                 .font(.system(size: 14))
                 .foregroundColor(.white.opacity(0.7))
             
-            Text("\(Int(debtStore.totalOwedToMe)) ₽")
+            // Always display amount with interest as the main amount
+            Text("\(Int(debtStore.totalOwedToMeWithInterest)) ₽")
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.green)
             
@@ -141,9 +142,13 @@ struct DebtListView: View {
                 Text("С %: \(Int(debtStore.totalOwedToMeWithInterest)) ₽")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.green.opacity(0.8))
+            } else {
+                // Add spacing to match the other card height
+                Text(" ")
+                    .font(.system(size: 16, weight: .semibold))
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
@@ -165,9 +170,13 @@ struct DebtListView: View {
                 Text("С %: \(Int(debtStore.totalIOweWithInterest)) ₽")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.red.opacity(0.8))
+            } else {
+                // Add spacing to match the other card height
+                Text(" ")
+                    .font(.system(size: 16, weight: .semibold))
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
