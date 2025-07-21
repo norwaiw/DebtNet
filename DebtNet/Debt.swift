@@ -1,7 +1,7 @@
 import Foundation
 
 struct Debt: Identifiable, Codable {
-    let id = UUID()
+    var id = UUID()
     var debtorName: String
     var amount: Double
     var description: String
