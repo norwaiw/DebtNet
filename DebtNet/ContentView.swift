@@ -2,11 +2,12 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     @State private var selectedTab = 0
     
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            themeManager.backgroundColor.ignoresSafeArea()
             
             VStack(spacing: 0) {
                 // Content
@@ -75,7 +76,7 @@ struct ContentView: View {
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 8)
-                .background(Color.black)
+                .background(themeManager.navigationBarColor)
                 .overlay(
                     Rectangle()
                         .frame(height: 0.5)
@@ -84,28 +85,63 @@ struct ContentView: View {
                 )
             }
         }
-        .preferredColorScheme(.dark)
     }
 }
 
 struct SettingsView: View {
+    @EnvironmentObject var themeManager: ThemeManager
+    
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            themeManager.backgroundColor.ignoresSafeArea()
             
-            VStack {
+            VStack(spacing: 0) {
+                // Header
                 Text("Настройки")
                     .font(.title)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding()
+                    .foregroundColor(themeManager.primaryTextColor)
+                    .padding(.top, 20)
+                    .padding(.bottom, 30)
                 
-                Spacer()
-                
-                Text("Настройки приложения")
-                    .foregroundColor(.gray)
-                
-                Spacer()
+                // Settings Content
+                VStack(spacing: 0) {
+                    // Theme Toggle Section
+                    VStack(spacing: 16) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Тема приложения")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(themeManager.primaryTextColor)
+                                
+                                Text(themeManager.isDarkMode ? "Темная тема" : "Светлая тема")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(themeManager.secondaryTextColor)
+                            }
+                            
+                            Spacer()
+                            
+                            Toggle("", isOn: $themeManager.isDarkMode)
+                                .toggleStyle(SwitchToggleStyle(tint: .blue))
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(themeManager.isDarkMode ? 
+                                      Color(red: 0.15, green: 0.15, blue: 0.15) : 
+                                      Color(red: 0.95, green: 0.95, blue: 0.93))
+                        )
+                        .padding(.horizontal, 20)
+                    }
+                    
+                    Spacer()
+                    
+                    Text("Настройки приложения")
+                        .foregroundColor(themeManager.secondaryTextColor)
+                        .padding(.bottom, 40)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
@@ -114,4 +150,5 @@ struct SettingsView: View {
 #Preview {
     ContentView()
         .environmentObject(DebtStore())
+        .environmentObject(ThemeManager())
 }

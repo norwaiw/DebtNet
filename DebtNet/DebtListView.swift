@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DebtListView: View {
     @EnvironmentObject var debtStore: DebtStore
+    @EnvironmentObject var themeManager: ThemeManager
     @State private var showingAddDebt = false
     @State private var selectedFilter: FilterOption = .all
     @State private var showingDeleteAlert = false
@@ -34,7 +35,7 @@ struct DebtListView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.ignoresSafeArea()
+                themeManager.backgroundColor.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     mainContentView
@@ -79,7 +80,7 @@ struct DebtListView: View {
             Text("История долгов")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(themeManager.primaryTextColor)
             
             Spacer()
             
