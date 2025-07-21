@@ -8,8 +8,10 @@ class DebtStore: ObservableObject {
     
     init() {
         loadDebts()
-        // Clear all existing data including sample data
-        clearAllData()
+        // Add sample data for testing
+        if debts.isEmpty {
+            addSampleData()
+        }
     }
     
     func addDebt(_ debt: Debt) {
@@ -37,6 +39,20 @@ class DebtStore: ObservableObject {
     func markAsPaid(_ debt: Debt) {
         if let index = debts.firstIndex(where: { $0.id == debt.id }) {
             debts[index].isPaid = true
+            saveDebts()
+        }
+    }
+    
+    func markAsUnpaid(_ debt: Debt) {
+        if let index = debts.firstIndex(where: { $0.id == debt.id }) {
+            debts[index].isPaid = false
+            saveDebts()
+        }
+    }
+    
+    func togglePaidStatus(_ debt: Debt) {
+        if let index = debts.firstIndex(where: { $0.id == debt.id }) {
+            debts[index].isPaid.toggle()
             saveDebts()
         }
     }
