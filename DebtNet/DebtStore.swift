@@ -8,6 +8,10 @@ class DebtStore: ObservableObject {
     
     init() {
         loadDebts()
+        // Add sample data if empty
+        if debts.isEmpty {
+            addSampleData()
+        }
     }
     
     func addDebt(_ debt: Debt) {
@@ -35,6 +39,14 @@ class DebtStore: ObservableObject {
     }
     
     // MARK: - Statistics
+    var totalOwedToMe: Double {
+        debts.filter { !$0.isPaid && $0.type == .owedToMe }.reduce(0) { $0 + $1.amount }
+    }
+    
+    var totalIOwe: Double {
+        debts.filter { !$0.isPaid && $0.type == .iOwe }.reduce(0) { $0 + $1.amount }
+    }
+    
     var totalDebtAmount: Double {
         debts.filter { !$0.isPaid }.reduce(0) { $0 + $1.amount }
     }
@@ -55,8 +67,54 @@ class DebtStore: ObservableObject {
         debts.filter { $0.isPaid }
     }
     
+    var debtsOwedToMe: [Debt] {
+        debts.filter { $0.type == .owedToMe }
+    }
+    
+    var debtsIOwe: [Debt] {
+        debts.filter { $0.type == .iOwe }
+    }
+    
     func debtsByCategory() -> [Debt.DebtCategory: [Debt]] {
         Dictionary(grouping: debts) { $0.category }
+    }
+    
+    // MARK: - Sample Data
+    private func addSampleData() {
+        let sampleDebts = [
+            Debt(
+                debtorName: "Иван Петров",
+                amount: 5000,
+                description: "За ужин в ресторане",
+                dateCreated: Calendar.current.date(byAdding: .day, value: -10, to: Date()) ?? Date(),
+                dueDate: Calendar.current.date(byAdding: .day, value: 20, to: Date()),
+                category: .friend,
+                type: .owedToMe
+            ),
+            Debt(
+                debtorName: "Мария Сидорова",
+                amount: 15000,
+                description: "Займ на ремонт",
+                dateCreated: Calendar.current.date(byAdding: .day, value: -5, to: Date()) ?? Date(),
+                dueDate: Calendar.current.date(byAdding: .day, value: 15, to: Date()),
+                category: .personal,
+                type: .iOwe
+            ),
+            Debt(
+                debtorName: "Алексей Козлов",
+                amount: 3000,
+                description: "Билеты на концерт",
+                dateCreated: Date(),
+                dueDate: nil,
+                category: .friend,
+                type: .owedToMe
+            )
+        ]
+        
+        for debt in sampleDebts {
+            debts.append(debt)
+        }
+        saveDebts()
     }
     
     // MARK: - Persistence

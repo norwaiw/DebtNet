@@ -3,172 +3,196 @@ import SwiftUI
 struct DebtListView: View {
     @EnvironmentObject var debtStore: DebtStore
     @State private var showingAddDebt = false
-    @State private var searchText = ""
     @State private var selectedFilter: FilterOption = .all
     
     enum FilterOption: String, CaseIterable {
         case all = "Все"
-        case active = "Активные"
-        case paid = "Погашенные"
-        case overdue = "Просроченные"
+        case owedToMe = "Мне должны"
+        case iOwe = "Я должен"
     }
     
     var filteredDebts: [Debt] {
-        let filtered = debtStore.debts.filter { debt in
-            switch selectedFilter {
-            case .all:
-                return true
-            case .active:
-                return !debt.isPaid
-            case .paid:
-                return debt.isPaid
-            case .overdue:
-                return debt.isOverdue
-            }
-        }
-        
-        if searchText.isEmpty {
-            return filtered
-        } else {
-            return filtered.filter { debt in
-                debt.debtorName.localizedCaseInsensitiveContains(searchText) ||
-                debt.description.localizedCaseInsensitiveContains(searchText)
-            }
+        switch selectedFilter {
+        case .all:
+            return debtStore.debts.sorted { $0.dateCreated > $1.dateCreated }
+        case .owedToMe:
+            return debtStore.debtsOwedToMe.sorted { $0.dateCreated > $1.dateCreated }
+        case .iOwe:
+            return debtStore.debtsIOwe.sorted { $0.dateCreated > $1.dateCreated }
         }
     }
     
     var body: some View {
         NavigationView {
-            VStack {
-                // Filter Picker
-                Picker("Фильтр", selection: $selectedFilter) {
-                    ForEach(FilterOption.allCases, id: \.self) { option in
-                        Text(option.rawValue).tag(option)
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding(.horizontal)
+            ZStack {
+                Color.black.ignoresSafeArea()
                 
-                // Search Bar
-                SearchBar(text: $searchText)
-                
-                // Debt List
-                List {
-                    ForEach(filteredDebts) { debt in
-                        DebtRowView(debt: debt)
+                VStack(spacing: 20) {
+                    // Header
+                    HStack {
+                        Text("История долгов")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            showingAddDebt = true
+                        }) {
+                            Image(systemName: "plus")
+                                .foregroundColor(.red)
+                                .font(.title2)
+                                .frame(width: 40, height: 40)
+                                .background(Circle().fill(Color.red))
+                                .foregroundColor(.white)
+                        }
                     }
-                    .onDelete(perform: deleteDebts)
+                    .padding(.horizontal)
+                    
+                    // Filter Buttons
+                    HStack(spacing: 12) {
+                        ForEach(FilterOption.allCases, id: \.self) { option in
+                            Button(action: {
+                                selectedFilter = option
+                            }) {
+                                Text(option.rawValue)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(selectedFilter == option ? .white : .gray)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(selectedFilter == option ? Color.red : Color.gray.opacity(0.3))
+                                    )
+                            }
+                        }
+                        Spacer()
+                    }
+                    .padding(.horizontal)
+                    
+                    // Summary Cards
+                    HStack(spacing: 16) {
+                        // Мне должны (Green)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Мне должны")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white.opacity(0.7))
+                            
+                            Text("\(Int(debtStore.totalOwedToMe)) ₽")
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundColor(.green)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.green.opacity(0.15))
+                        )
+                        
+                        // Я должен (Red)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Я должен")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white.opacity(0.7))
+                            
+                            Text("\(Int(debtStore.totalIOwe)) ₽")
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundColor(.red)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.red.opacity(0.15))
+                        )
+                    }
+                    .padding(.horizontal)
+                    
+                    // Debt List
+                    ScrollView {
+                        LazyVStack(spacing: 12) {
+                            ForEach(filteredDebts) { debt in
+                                DebtHistoryRowView(debt: debt)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    Spacer()
                 }
-                .listStyle(PlainListStyle())
             }
-            .navigationTitle("DebtNet")
-            .navigationBarItems(trailing: Button(action: {
-                showingAddDebt = true
-            }) {
-                Image(systemName: "plus")
-            })
-            .sheet(isPresented: $showingAddDebt) {
-                AddDebtView()
-            }
+            .navigationBarHidden(true)
         }
-    }
-    
-    func deleteDebts(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                debtStore.deleteDebt(filteredDebts[index])
-            }
+        .sheet(isPresented: $showingAddDebt) {
+            AddDebtView()
+                .preferredColorScheme(.dark)
         }
     }
 }
 
-struct DebtRowView: View {
+struct DebtHistoryRowView: View {
     let debt: Debt
     @EnvironmentObject var debtStore: DebtStore
     
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM yyyy"
+        formatter.locale = Locale(identifier: "ru_RU")
+        return formatter
+    }
+    
     var body: some View {
-        HStack {
+        HStack(spacing: 16) {
+            // Icon
+            Circle()
+                .fill(debt.type == .owedToMe ? Color.green : Color.red)
+                .frame(width: 40, height: 40)
+                .overlay(
+                    Image(systemName: debt.type == .owedToMe ? "arrow.down" : "arrow.up")
+                        .foregroundColor(.white)
+                        .font(.system(size: 16, weight: .bold))
+                )
+            
+            // Content
             VStack(alignment: .leading, spacing: 4) {
                 Text(debt.debtorName)
-                    .font(.headline)
-                    .foregroundColor(debt.isPaid ? .secondary : .primary)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white)
                 
                 Text(debt.description)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
+                    .lineLimit(1)
                 
-                HStack {
-                    Text(debt.category.rawValue)
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(Color.blue.opacity(0.2))
-                        .cornerRadius(8)
-                    
-                    if debt.isOverdue {
-                        Text("Просрочен")
-                            .font(.caption)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 2)
-                            .background(Color.red.opacity(0.2))
-                            .foregroundColor(.red)
-                            .cornerRadius(8)
-                    }
-                }
+                Text(dateFormatter.string(from: debt.dateCreated))
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
             }
             
             Spacer()
             
-            VStack(alignment: .trailing) {
-                Text(debt.formattedAmount)
-                    .font(.headline)
-                    .foregroundColor(debt.isPaid ? .green : (debt.isOverdue ? .red : .primary))
+            // Amount
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(debt.amountWithSign)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(debt.type == .owedToMe ? .green : .red)
                 
-                if let dueDate = debt.dueDate {
-                    Text("До: \(dueDate, formatter: dateFormatter)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                if !debt.isPaid {
-                    Button("Погасить") {
-                        withAnimation {
-                            debtStore.markAsPaid(debt)
-                        }
-                    }
-                    .font(.caption)
-                    .foregroundColor(.blue)
-                }
+                Text("RUB")
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
             }
         }
-        .padding(.vertical, 4)
-        .opacity(debt.isPaid ? 0.6 : 1.0)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.gray.opacity(0.1))
+        )
     }
 }
-
-struct SearchBar: View {
-    @Binding var text: String
-    
-    var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.secondary)
-            
-            TextField("Поиск должников...", text: $text)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-        }
-        .padding(.horizontal)
-    }
-}
-
-private let dateFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    return formatter
-}()
 
 #Preview {
     DebtListView()
         .environmentObject(DebtStore())
+        .preferredColorScheme(.dark)
 }
