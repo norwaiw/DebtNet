@@ -133,20 +133,14 @@ struct DebtListView: View {
                 .font(.system(size: 14))
                 .foregroundColor(.white.opacity(0.7))
             
-            // Always display amount with interest as the main amount
+            // Display amount with interest as the main amount (without the "С %" line)
             Text("\(Int(debtStore.totalOwedToMeWithInterest)) ₽")
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.green)
             
-            if debtStore.totalOwedToMeWithInterest != debtStore.totalOwedToMe {
-                Text("С %: \(Int(debtStore.totalOwedToMeWithInterest)) ₽")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.green.opacity(0.8))
-            } else {
-                // Add spacing to match the other card height
-                Text(" ")
-                    .font(.system(size: 16, weight: .semibold))
-            }
+            // Add spacing to match the other card height
+            Text(" ")
+                .font(.system(size: 16, weight: .semibold))
         }
         .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
         .padding()
@@ -166,15 +160,9 @@ struct DebtListView: View {
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.red)
             
-            if debtStore.totalIOweWithInterest != debtStore.totalIOwe {
-                Text("С %: \(Int(debtStore.totalIOweWithInterest)) ₽")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.red.opacity(0.8))
-            } else {
-                // Add spacing to match the other card height
-                Text(" ")
-                    .font(.system(size: 16, weight: .semibold))
-            }
+            // Add spacing to match the other card height
+            Text(" ")
+                .font(.system(size: 16, weight: .semibold))
         }
         .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
         .padding()
