@@ -90,6 +90,8 @@ struct ContentView: View {
 
 struct SettingsView: View {
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var notificationManager: NotificationManager
+    @State private var showingNotificationSettings = false
     
     var body: some View {
         ZStack {
@@ -105,24 +107,59 @@ struct SettingsView: View {
                     .padding(.bottom, 30)
                 
                 // Settings Content
-                VStack(spacing: 0) {
+                VStack(spacing: 16) {
                     // Theme Toggle Section
-                    VStack(spacing: 16) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Тема приложения")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(themeManager.primaryTextColor)
+                            
+                            Text(themeManager.isDarkMode ? "Темная тема" : "Светлая тема")
+                                .font(.system(size: 14))
+                                .foregroundColor(themeManager.secondaryTextColor)
+                        }
+                        
+                        Spacer()
+                        
+                        Toggle("", isOn: $themeManager.isDarkMode)
+                            .toggleStyle(SwitchToggleStyle(tint: .blue))
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(themeManager.isDarkMode ? 
+                                  Color(red: 0.15, green: 0.15, blue: 0.15) : 
+                                  Color(red: 0.95, green: 0.95, blue: 0.93))
+                    )
+                    .padding(.horizontal, 20)
+                    
+                    // Notifications Section
+                    Button(action: {
+                        showingNotificationSettings = true
+                    }) {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Тема приложения")
+                                Text("Уведомления")
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(themeManager.primaryTextColor)
                                 
-                                Text(themeManager.isDarkMode ? "Темная тема" : "Светлая тема")
+                                Text(notificationManager.isNotificationEnabled ? "Включены" : "Отключены")
                                     .font(.system(size: 14))
                                     .foregroundColor(themeManager.secondaryTextColor)
                             }
                             
                             Spacer()
                             
-                            Toggle("", isOn: $themeManager.isDarkMode)
-                                .toggleStyle(SwitchToggleStyle(tint: .blue))
+                            HStack(spacing: 8) {
+                                Image(systemName: notificationManager.isNotificationEnabled ? "bell.fill" : "bell.slash")
+                                    .foregroundColor(notificationManager.isNotificationEnabled ? .green : .gray)
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.gray)
+                            }
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 16)
@@ -143,6 +180,10 @@ struct SettingsView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+        }
+        .sheet(isPresented: $showingNotificationSettings) {
+            NotificationSettingsView()
+                .environmentObject(themeManager)
         }
     }
 }

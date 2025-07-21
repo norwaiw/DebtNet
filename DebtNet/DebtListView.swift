@@ -3,6 +3,7 @@ import SwiftUI
 struct DebtListView: View {
     @EnvironmentObject var debtStore: DebtStore
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var notificationManager: NotificationManager
     @State private var showingAddDebt = false
     @State private var selectedFilter: FilterOption = .all
     @State private var showingDeleteAlert = false
@@ -10,6 +11,7 @@ struct DebtListView: View {
     @State private var archiveOffset: CGFloat = 0
     @State private var showingArchive = false
     @State private var dragOffset: CGFloat = 0
+    @State private var showingNotificationSettings = false
     
     enum FilterOption: String, CaseIterable {
         case all = "Все"
@@ -32,6 +34,17 @@ struct DebtListView: View {
         return debtStore.paidDebts.sorted { $0.dateCreated > $1.dateCreated }
     }
     
+    var upcomingDebtsCount: Int {
+        let calendar = Calendar.current
+        let now = Date()
+        let nextWeek = calendar.date(byAdding: .day, value: 7, to: now) ?? now
+        
+        return debtStore.activeDebts.filter { debt in
+            guard let dueDate = debt.dueDate else { return false }
+            return dueDate > now && dueDate <= nextWeek
+        }.count
+    }
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -46,6 +59,10 @@ struct DebtListView: View {
         }
         .sheet(isPresented: $showingAddDebt) {
             AddDebtView()
+                .environmentObject(themeManager)
+        }
+        .sheet(isPresented: $showingNotificationSettings) {
+            NotificationSettingsView()
                 .environmentObject(themeManager)
         }
         .alert("Удалить долг", isPresented: $showingDeleteAlert) {
@@ -83,6 +100,29 @@ struct DebtListView: View {
                 .foregroundColor(themeManager.primaryTextColor)
             
             Spacer()
+            
+            // Notification button
+            Button(action: {
+                showingNotificationSettings = true
+            }) {
+                ZStack {
+                    Image(systemName: notificationManager.isNotificationEnabled ? "bell.fill" : "bell.slash")
+                        .foregroundColor(notificationManager.isNotificationEnabled ? .blue : .gray)
+                        .font(.title3)
+                    
+                    // Badge for pending notifications
+                    if notificationManager.isNotificationEnabled && upcomingDebtsCount > 0 {
+                        Text("\(upcomingDebtsCount)")
+                            .font(.caption2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .frame(minWidth: 16, minHeight: 16)
+                            .background(Circle().fill(Color.red))
+                            .offset(x: 8, y: -8)
+                    }
+                }
+            }
+            .padding(.trailing, 8)
             
             Button(action: {
                 showingAddDebt = true
