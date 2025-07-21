@@ -10,6 +10,7 @@ struct Debt: Identifiable, Codable {
     var isPaid: Bool = false
     var category: DebtCategory
     var type: DebtType
+    var interestRate: Double = 0.0  // Процентная ставка (в процентах)
     
     enum DebtCategory: String, CaseIterable, Codable {
         case personal = "Личный"
@@ -28,6 +29,15 @@ struct Debt: Identifiable, Codable {
         return String(format: "%.0f ₽", amount)
     }
     
+    // Сумма с процентами
+    var amountWithInterest: Double {
+        return amount * (1 + interestRate / 100)
+    }
+    
+    var formattedAmountWithInterest: String {
+        return String(format: "%.0f ₽", amountWithInterest)
+    }
+    
     var isOverdue: Bool {
         guard let dueDate = dueDate else { return false }
         return !isPaid && Date() > dueDate
@@ -36,5 +46,10 @@ struct Debt: Identifiable, Codable {
     var amountWithSign: String {
         let sign = type == .owedToMe ? "" : "-"
         return "\(sign)\(String(format: "%.0f", amount))"
+    }
+    
+    var amountWithInterestAndSign: String {
+        let sign = type == .owedToMe ? "" : "-"
+        return "\(sign)\(String(format: "%.0f", amountWithInterest))"
     }
 }

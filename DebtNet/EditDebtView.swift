@@ -13,6 +13,8 @@ struct EditDebtView: View {
     @State private var debtType: Debt.DebtType
     @State private var hasDueDate: Bool
     @State private var dueDate: Date
+    @State private var interestRate: String
+    @State private var hasInterest: Bool
     
     @State private var showingAlert = false
     @State private var alertMessage = ""
@@ -26,6 +28,8 @@ struct EditDebtView: View {
         _debtType = State(initialValue: debt.type)
         _hasDueDate = State(initialValue: debt.dueDate != nil)
         _dueDate = State(initialValue: debt.dueDate ?? Date())
+        _interestRate = State(initialValue: debt.interestRate > 0 ? String(format: "%.1f", debt.interestRate) : "")
+        _hasInterest = State(initialValue: debt.interestRate > 0)
     }
     
     var body: some View {
@@ -113,6 +117,41 @@ struct EditDebtView: View {
                                     Text("₽")
                                         .foregroundColor(.gray)
                                         .padding(.trailing, 12)
+                                }
+                            }
+                            .padding(.horizontal)
+                            
+                            // Interest Rate
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text("Процентная ставка")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    
+                                    Spacer()
+                                    
+                                    Toggle("", isOn: $hasInterest)
+                                        .labelsHidden()
+                                }
+                                
+                                if hasInterest {
+                                    HStack {
+                                        TextField("0", text: $interestRate)
+                                            .keyboardType(.decimalPad)
+                                            .textFieldStyle(DarkTextFieldStyle())
+                                        
+                                        Text("%")
+                                            .foregroundColor(.gray)
+                                            .padding(.trailing, 12)
+                                    }
+                                    
+                                    if let amountValue = Double(amount), let rateValue = Double(interestRate), amountValue > 0, rateValue >= 0 {
+                                        let totalAmount = amountValue * (1 + rateValue / 100)
+                                        Text("Итого с процентами: \(String(format: "%.0f", totalAmount)) ₽")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.green)
+                                            .padding(.top, 4)
+                                    }
                                 }
                             }
                             .padding(.horizontal)
@@ -207,6 +246,8 @@ struct EditDebtView: View {
             return
         }
         
+        let interestRateValue = hasInterest ? (Double(interestRate) ?? 0.0) : 0.0
+        
         var updatedDebt = debt
         updatedDebt.debtorName = debtorName.trimmingCharacters(in: .whitespacesAndNewlines)
         updatedDebt.amount = amountValue
@@ -214,6 +255,7 @@ struct EditDebtView: View {
         updatedDebt.category = category
         updatedDebt.type = debtType
         updatedDebt.dueDate = hasDueDate ? dueDate : nil
+        updatedDebt.interestRate = interestRateValue
         
         debtStore.updateDebt(updatedDebt)
         presentationMode.wrappedValue.dismiss()
@@ -228,7 +270,8 @@ struct EditDebtView: View {
         dateCreated: Date(),
         dueDate: Calendar.current.date(byAdding: .day, value: 30, to: Date()),
         category: .personal,
-        type: .owedToMe
+        type: .owedToMe,
+        interestRate: 5.0
     ))
     .environmentObject(DebtStore())
     .preferredColorScheme(.dark)

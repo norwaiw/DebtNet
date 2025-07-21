@@ -66,6 +66,15 @@ class DebtStore: ObservableObject {
         debts.filter { !$0.isPaid && $0.type == .iOwe }.reduce(0) { $0 + $1.amount }
     }
     
+    // Суммы с процентами
+    var totalOwedToMeWithInterest: Double {
+        debts.filter { !$0.isPaid && $0.type == .owedToMe }.reduce(0) { $0 + $1.amountWithInterest }
+    }
+    
+    var totalIOweWithInterest: Double {
+        debts.filter { !$0.isPaid && $0.type == .iOwe }.reduce(0) { $0 + $1.amountWithInterest }
+    }
+    
     var totalDebtAmount: Double {
         debts.filter { !$0.isPaid }.reduce(0) { $0 + $1.amount }
     }
@@ -108,7 +117,8 @@ class DebtStore: ObservableObject {
                 dateCreated: Calendar.current.date(byAdding: .day, value: -10, to: Date()) ?? Date(),
                 dueDate: Calendar.current.date(byAdding: .day, value: 20, to: Date()),
                 category: .friend,
-                type: .owedToMe
+                type: .owedToMe,
+                interestRate: 2.5
             ),
             Debt(
                 debtorName: "Мария Сидорова",
@@ -117,7 +127,8 @@ class DebtStore: ObservableObject {
                 dateCreated: Calendar.current.date(byAdding: .day, value: -5, to: Date()) ?? Date(),
                 dueDate: Calendar.current.date(byAdding: .day, value: 15, to: Date()),
                 category: .personal,
-                type: .iOwe
+                type: .iOwe,
+                interestRate: 10.0
             ),
             Debt(
                 debtorName: "Алексей Козлов",
@@ -140,7 +151,8 @@ class DebtStore: ObservableObject {
                 dueDate: Calendar.current.date(byAdding: .year, value: 2, to: Date()),
                 isPaid: true,
                 category: .personal,
-                type: .owedToMe
+                type: .owedToMe,
+                interestRate: 15.0
             ),
             Debt(
                 debtorName: "Дмитрий Васильев",

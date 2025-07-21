@@ -128,14 +128,20 @@ struct DebtListView: View {
     }
     
     private var owedToMeCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 4) {
             Text("Мне должны")
                 .font(.system(size: 14))
                 .foregroundColor(.white.opacity(0.7))
             
             Text("\(Int(debtStore.totalOwedToMe)) ₽")
-                .font(.system(size: 24, weight: .bold))
+                .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.green)
+            
+            if debtStore.totalOwedToMeWithInterest != debtStore.totalOwedToMe {
+                Text("С %: \(Int(debtStore.totalOwedToMeWithInterest)) ₽")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.green.opacity(0.8))
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -146,14 +152,20 @@ struct DebtListView: View {
     }
     
     private var iOweCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 4) {
             Text("Я должен")
                 .font(.system(size: 14))
                 .foregroundColor(.white.opacity(0.7))
             
             Text("\(Int(debtStore.totalIOwe)) ₽")
-                .font(.system(size: 24, weight: .bold))
+                .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.red)
+            
+            if debtStore.totalIOweWithInterest != debtStore.totalIOwe {
+                Text("С %: \(Int(debtStore.totalIOweWithInterest)) ₽")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.red.opacity(0.8))
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -379,14 +391,24 @@ struct DebtHistoryRowView: View {
                 Spacer()
                 
                 // Amount and status button
-                VStack(alignment: .trailing, spacing: 8) {
+                VStack(alignment: .trailing, spacing: 4) {
                     Text(debt.amountWithSign)
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(debt.type == .owedToMe ? .green : .red)
                     
-                    Text("RUB")
-                        .font(.system(size: 12))
-                        .foregroundColor(.gray)
+                    if debt.interestRate > 0 {
+                        Text(debt.amountWithInterestAndSign)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor((debt.type == .owedToMe ? .green : .red).opacity(0.8))
+                        
+                        Text("\(String(format: "%.1f", debt.interestRate))%")
+                            .font(.system(size: 10))
+                            .foregroundColor(.gray)
+                    } else {
+                        Text("RUB")
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
+                    }
                     
                     // Quick status toggle button
                     Button(action: {
@@ -557,15 +579,26 @@ struct ArchivedDebtRowView: View {
                 Spacer()
                 
                 // Amount and status button
-                VStack(alignment: .trailing, spacing: 8) {
+                VStack(alignment: .trailing, spacing: 4) {
                     Text(debt.amountWithSign)
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.gray)
                         .strikethrough(true)
                     
-                    Text("RUB")
-                        .font(.system(size: 12))
-                        .foregroundColor(.gray)
+                    if debt.interestRate > 0 {
+                        Text(debt.amountWithInterestAndSign)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.gray.opacity(0.8))
+                            .strikethrough(true)
+                        
+                        Text("\(String(format: "%.1f", debt.interestRate))%")
+                            .font(.system(size: 10))
+                            .foregroundColor(.gray)
+                    } else {
+                        Text("RUB")
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
+                    }
                     
                     // Quick status toggle button
                     Button(action: {
