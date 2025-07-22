@@ -131,7 +131,7 @@ struct DebtListView: View {
                     .foregroundColor(.gray)
                     .font(.title2)
                     .frame(width: 40, height: 40)
-                    .background(Circle().fill(Color.red))
+                    .background(Circle().fill(Color.gray.opacity(0.8)))
                     .foregroundColor(.gray)
             }
         }
