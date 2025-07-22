@@ -50,16 +50,18 @@ struct EditDebtView: View {
                             Spacer()
                             
                             Text("Редактировать долг")
-                                .font(.title2)
+                                .font(.system(size: 18))
                                 .fontWeight(.bold)
                                 .foregroundColor(themeManager.primaryTextColor)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
                             
                             Spacer()
                             
                             Button("Сохранить") {
                                 updateDebt()
                             }
-                            .foregroundColor(isFormValid ? .blue : themeManager.secondaryTextColor)
+                            .foregroundColor(isFormValid ? .gray : themeManager.secondaryTextColor)
                             .disabled(!isFormValid)
                         }
                         .padding(.horizontal)
@@ -84,7 +86,9 @@ struct EditDebtView: View {
                                                 .padding(.vertical, 12)
                                                 .background(
                                                     RoundedRectangle(cornerRadius: 25)
-                                                        .fill(debtType == type ? Color.blue : themeManager.cardBackgroundColor)
+                                                        .fill(debtType == type ? 
+                                                              (type == .owedToMe ? Color.green : Color.red) : 
+                                                              themeManager.cardBackgroundColor)
                                                         .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
                                                 )
                                         }
@@ -188,7 +192,7 @@ struct EditDebtView: View {
                                                     .padding(.vertical, 8)
                                                     .background(
                                                         RoundedRectangle(cornerRadius: 20)
-                                                            .fill(category == cat ? Color.blue : themeManager.cardBackgroundColor)
+                                                            .fill(category == cat ? Color.gray.opacity(0.8) : themeManager.cardBackgroundColor)
                                                         .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
                                                     )
                                             }
