@@ -132,7 +132,7 @@ struct DebtListView: View {
                     .font(.title2)
                     .frame(width: 40, height: 40)
                     .background(Circle().fill(Color.black.opacity(0.8)))
-                    .foregroundColor(.black)
+                    .foregroundColor(.red)
             }
         }
         .padding(.horizontal)
