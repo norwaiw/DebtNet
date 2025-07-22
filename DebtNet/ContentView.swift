@@ -31,7 +31,7 @@ struct ContentView: View {
                         selectedTab = 0
                     }) {
                         VStack(spacing: 4) {
-                            Image(systemName: "list.bullet")
+                            Image(systemName: "dollarsign.circle")
                                 .font(.system(size: 20))
                                 .foregroundColor(selectedTab == 0 ? .blue : .gray)
                             
