@@ -35,7 +35,7 @@ struct ContentView: View {
                                 .font(.system(size: 20))
                                 .foregroundColor(selectedTab == 0 ? .blue : .gray)
                             
-                            Text("Debts")
+                            Text("Долги")
                                 .font(.system(size: 12))
                                 .foregroundColor(selectedTab == 0 ? .blue : .gray)
                         }
@@ -51,7 +51,7 @@ struct ContentView: View {
                                 .font(.system(size: 20))
                                 .foregroundColor(selectedTab == 1 ? .blue : .gray)
                             
-                            Text("Statistics")
+                            Text("История")
                                 .font(.system(size: 12))
                                 .foregroundColor(selectedTab == 1 ? .blue : .gray)
                         }
@@ -67,7 +67,7 @@ struct ContentView: View {
                                 .font(.system(size: 20))
                                 .foregroundColor(selectedTab == 2 ? .blue : .gray)
                             
-                            Text("Settings")
+                            Text("Настройки")
                                 .font(.system(size: 12))
                                 .foregroundColor(selectedTab == 2 ? .blue : .gray)
                         }
