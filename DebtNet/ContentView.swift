@@ -33,11 +33,11 @@ struct ContentView: View {
                         VStack(spacing: 4) {
                             Image(systemName: "folder")
                                 .font(.system(size: 20))
-                                .foregroundColor(selectedTab == 0 ? .blue : .gray)
+                                .foregroundColor(selectedTab == 0 ? Color(red: 0.4, green: 0.4, blue: 0.4) : .gray)
                             
                             Text("Долги")
                                 .font(.system(size: 12))
-                                .foregroundColor(selectedTab == 0 ? .blue : .gray)
+                                .foregroundColor(selectedTab == 0 ? Color(red: 0.4, green: 0.4, blue: 0.4) : .gray)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -49,11 +49,11 @@ struct ContentView: View {
                         VStack(spacing: 4) {
                             Image(systemName: "clock.fill")
                                 .font(.system(size: 20))
-                                .foregroundColor(selectedTab == 1 ? .blue : .gray)
+                                .foregroundColor(selectedTab == 1 ? Color(red: 0.4, green: 0.4, blue: 0.4) : .gray)
                             
                             Text("История")
                                 .font(.system(size: 12))
-                                .foregroundColor(selectedTab == 1 ? .blue : .gray)
+                                .foregroundColor(selectedTab == 1 ? Color(red: 0.4, green: 0.4, blue: 0.4) : .gray)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -65,11 +65,11 @@ struct ContentView: View {
                         VStack(spacing: 4) {
                             Image(systemName: "gearshape.fill")
                                 .font(.system(size: 20))
-                                .foregroundColor(selectedTab == 2 ? .blue : .gray)
+                                .foregroundColor(selectedTab == 2 ? Color(red: 0.4, green: 0.4, blue: 0.4) : .gray)
                             
                             Text("Настройки")
                                 .font(.system(size: 12))
-                                .foregroundColor(selectedTab == 2 ? .blue : .gray)
+                                .foregroundColor(selectedTab == 2 ? Color(red: 0.4, green: 0.4, blue: 0.4) : .gray)
                         }
                     }
                     .frame(maxWidth: .infinity)
