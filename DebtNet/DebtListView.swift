@@ -128,11 +128,11 @@ struct DebtListView: View {
                 showingAddDebt = true
             }) {
                 Image(systemName: "plus")
-                    .foregroundColor(.red)
+                    .foregroundColor(.gray)
                     .font(.title2)
                     .frame(width: 40, height: 40)
                     .background(Circle().fill(Color.red))
-                    .foregroundColor(.white)
+                    .foregroundColor(.gray)
             }
         }
         .padding(.horizontal)
