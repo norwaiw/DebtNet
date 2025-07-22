@@ -121,8 +121,8 @@ class NotificationManager: ObservableObject {
     
     // MARK: - Создание сообщений для уведомлений
     private func createWeeklyReminderMessage(for debt: Debt) -> String {
-        let typeText = debt.type == .owedToMe ? "вам должен" : "вы должны"
-        let preposition = debt.type == .owedToMe ? "" : "должнику"
+        _ = debt.type == .owedToMe ? "вам должен" : "вы должны"
+        _ = debt.type == .owedToMe ? "" : "должнику"
         
         if debt.type == .owedToMe {
             return "Через неделю истекает срок долга. \(debt.debtorName) должен вам \(debt.formattedAmountWithInterest)."
