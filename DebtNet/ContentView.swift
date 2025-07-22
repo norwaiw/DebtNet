@@ -99,12 +99,16 @@ struct SettingsView: View {
             
             VStack(spacing: 0) {
                 // Header
-                Text("Настройки")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(themeManager.primaryTextColor)
-                    .padding(.top, 20)
-                    .padding(.bottom, 30)
+                HStack {
+                    Text("Настройки")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(themeManager.primaryTextColor)
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 30)
                 
                 // Settings Content
                 VStack(spacing: 16) {
