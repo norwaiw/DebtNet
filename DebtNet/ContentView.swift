@@ -47,7 +47,7 @@ struct ContentView: View {
                         selectedTab = 1
                     }) {
                         VStack(spacing: 4) {
-                            Image(systemName: "chart.bar.fill")
+                            Image(systemName: "clock.fill")
                                 .font(.system(size: 20))
                                 .foregroundColor(selectedTab == 1 ? .blue : .gray)
                             
