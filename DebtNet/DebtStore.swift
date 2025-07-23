@@ -8,10 +8,6 @@ class DebtStore: ObservableObject {
     
     init() {
         loadDebts()
-        // Add sample data for testing
-        if debts.isEmpty {
-            addSampleData()
-        }
     }
     
     func addDebt(_ debt: Debt) {
@@ -124,75 +120,7 @@ class DebtStore: ObservableObject {
         Dictionary(grouping: debts) { $0.category }
     }
     
-    // MARK: - Sample Data
-    private func addSampleData() {
-        let sampleDebts = [
-            Debt(
-                debtorName: "Иван Петров",
-                amount: 5000,
-                description: "За ужин в ресторане",
-                dateCreated: Calendar.current.date(byAdding: .day, value: -10, to: Date()) ?? Date(),
-                dueDate: Calendar.current.date(byAdding: .day, value: 20, to: Date()),
-                category: .friend,
-                type: .owedToMe,
-                interestRate: 2.5
-            ),
-            Debt(
-                debtorName: "Мария Сидорова",
-                amount: 15000,
-                description: "Займ на ремонт",
-                dateCreated: Calendar.current.date(byAdding: .day, value: -5, to: Date()) ?? Date(),
-                dueDate: Calendar.current.date(byAdding: .day, value: 15, to: Date()),
-                category: .personal,
-                type: .iOwe,
-                interestRate: 10.0
-            ),
-            Debt(
-                debtorName: "Алексей Козлов",
-                amount: 3000,
-                description: "Билеты на концерт",
-                dateCreated: Date(),
-                dueDate: nil,
-                category: .friend,
-                type: .owedToMe
-            )
-        ]
-        
-        // Добавляем примеры погашенных долгов для архива
-        let paidSampleDebts = [
-            Debt(
-                debtorName: "Фадей",
-                amount: 10000,
-                description: "ТОРЧИТ СУЧКА",
-                dateCreated: Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date(),
-                dueDate: Calendar.current.date(byAdding: .year, value: 2, to: Date()),
-                isPaid: true,
-                category: .personal,
-                type: .owedToMe,
-                interestRate: 15.0
-            ),
-            Debt(
-                debtorName: "Дмитрий Васильев",
-                amount: 7500,
-                description: "За продукты",
-                dateCreated: Calendar.current.date(byAdding: .day, value: -20, to: Date()) ?? Date(),
-                dueDate: nil,
-                isPaid: true,
-                category: .friend,
-                type: .iOwe
-            )
-        ]
-        
-        for debt in sampleDebts {
-            debts.append(debt)
-        }
-        
-        for debt in paidSampleDebts {
-            debts.append(debt)
-        }
-        
-        saveDebts()
-    }
+
     
     // MARK: - Notifications
     private func scheduleNotificationsIfEnabled() {
