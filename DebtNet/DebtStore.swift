@@ -158,7 +158,7 @@ class DebtStore: ObservableObject {
             )
         ]
         
-        // Добавляем примеры погашенных долгов для архива
+        // Добавляем примеры погашенных долгов для архива#imageLiteral(resourceName: "simulator_screenshot_02E070D7-6B79-4A83-AA0F-AE1EEEEA40E8.png")
         let paidSampleDebts = [
             Debt(
                 debtorName: "Фадей",
