@@ -295,9 +295,9 @@ struct DetailRow: View {
 
 #Preview {
     DebtDetailView(debt: Debt(
-        debtorName: "Фадей",
+        debtorName: "Пример должника",
         amount: 10000,
-        description: "ТОРЧИТ СУЧКА",
+        description: "Пример описания",
         dateCreated: Date(),
         dueDate: Calendar.current.date(byAdding: .day, value: 30, to: Date()),
         category: .personal,

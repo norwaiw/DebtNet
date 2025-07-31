@@ -75,25 +75,7 @@ struct NotificationSettingsView: View {
                             }
                         }
                         
-                        Button {
-                            NotificationTestHelper.scheduleTestDebtNotifications()
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                loadPendingNotifications()
-                                alertMessage = "Запланированы тестовые уведомления через 30, 60 и 90 секунд"
-                                showingAlert = true
-                            }
-                        } label: {
-                            HStack {
-                                Image(systemName: "bell.badge")
-                                    .foregroundColor(.orange)
-                                Text("Тест уведомлений")
-                                Spacer()
-                                Text("для демо")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+
                     } header: {
                         Text("Управление")
                     } footer: {

@@ -84,12 +84,6 @@ struct Debt {
 - **Accent**: Blue for selections
 - **Text**: White and gray variants
 
-## Sample Data
-The app includes sample data on first launch:
-- Ivan Petrov: 5,000₽ (owed to me)
-- Maria Sidorova: 15,000₽ (I owe)
-- Alexey Kozlov: 3,000₽ (owed to me)
-
 ## Navigation
 Bottom navigation with three tabs:
 1. **Debts** - Main debt tracking interface
