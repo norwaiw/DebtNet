@@ -21,7 +21,7 @@
 		3D7B3A452B5F1CA000123456 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7B3A442B5F1CA000123456 /* ThemeManager.swift */; };
 		3D7B3A462B5F1CB000123456 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7B3A452B5F1CB000123456 /* NotificationManager.swift */; };
 		3D7B3A482B5F1CC000123456 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7B3A472B5F1CC000123456 /* NotificationSettingsView.swift */; };
-		3D7B3A4A2B5F1CD000123456 /* NotificationTestHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7B3A492B5F1CD000123456 /* NotificationTestHelper.swift */; };
+
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,7 +40,7 @@
 		3D7B3A442B5F1CA000123456 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		3D7B3A452B5F1CB000123456 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		3D7B3A472B5F1CC000123456 /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
-		3D7B3A492B5F1CD000123456 /* NotificationTestHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTestHelper.swift; sourceTree = "<group>"; };
+
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,7 +85,7 @@
 				3D7B3A432B5F1C9000123456 /* EditDebtView.swift */,
 				3D7B3A452B5F1CB000123456 /* NotificationManager.swift */,
 				3D7B3A472B5F1CC000123456 /* NotificationSettingsView.swift */,
-				3D7B3A492B5F1CD000123456 /* NotificationTestHelper.swift */,
+
 				3D7B3A2D2B5F1C2100123456 /* Assets.xcassets */,
 				3D7B3A2F2B5F1C2100123456 /* Preview Content */,
 			);
@@ -182,7 +182,7 @@
 				3D7B3A442B5F1C9000123456 /* EditDebtView.swift in Sources */,
 				3D7B3A462B5F1CB000123456 /* NotificationManager.swift in Sources */,
 				3D7B3A482B5F1CC000123456 /* NotificationSettingsView.swift in Sources */,
-				3D7B3A4A2B5F1CD000123456 /* NotificationTestHelper.swift in Sources */,
+
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
