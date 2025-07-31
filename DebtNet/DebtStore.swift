@@ -119,28 +119,4 @@ class DebtStore: ObservableObject {
     func debtsByCategory() -> [Debt.DebtCategory: [Debt]] {
         Dictionary(grouping: debts) { $0.category }
     }
-    
-
-    
-    // MARK: - Notifications
-    private func scheduleNotificationsIfEnabled() {
-        // Планируем уведомления только если они включены
-        if NotificationManager.shared.isNotificationEnabled {
-            NotificationManager.shared.scheduleNotificationsForDebts(activeDebts)
-        }
-    }
-    
-    // MARK: - Persistence
-    private func saveDebts() {
-        if let encoded = try? JSONEncoder().encode(debts) {
-            UserDefaults.standard.set(encoded, forKey: saveKey)
-        }
-    }
-    
-    private func loadDebts() {
-        if let data = UserDefaults.standard.data(forKey: saveKey),
-           let decoded = try? JSONDecoder().decode([Debt].self, from: data) {
-            debts = decoded
-        }
-    }
 }
