@@ -28,7 +28,7 @@ class NotificationTestHelper {
         // Уведомление о должнике через 30 секунд
         let content1 = UNMutableNotificationContent()
         content1.title = "Напоминание о долге"
-        content1.body = "Через неделю истекает срок долга. Иван Петров должен вам 5,000 ₽."
+        content1.body = "Через неделю истекает срок долга. Sample User должен вам 5,000 ₽."
         content1.sound = .default
         
         let trigger1 = UNTimeIntervalNotificationTrigger(timeInterval: 30, repeats: false)
@@ -37,7 +37,7 @@ class NotificationTestHelper {
         // Срочное уведомление через 60 секунд
         let content2 = UNMutableNotificationContent()
         content2.title = "Срочное напоминание о долге"
-        content2.body = "Завтра истекает срок долга! Мария Сидорова должна вам 15,000 ₽."
+        content2.body = "Завтра истекает срок долга! Sample User должна вам 15,000 ₽."
         content2.sound = .default
         
         let trigger2 = UNTimeIntervalNotificationTrigger(timeInterval: 60, repeats: false)
@@ -46,7 +46,7 @@ class NotificationTestHelper {
         // Уведомление о дне платежа через 90 секунд
         let content3 = UNMutableNotificationContent()
         content3.title = "Сегодня день платежа!"
-        content3.body = "Сегодня крайний день! Алексей Козлов должен вам 3,000 ₽."
+        content3.body = "Сегодня крайний день! Sample User должен вам 3,000 ₽."
         content3.sound = .default
         
         let trigger3 = UNTimeIntervalNotificationTrigger(timeInterval: 90, repeats: false)
