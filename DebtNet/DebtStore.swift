@@ -59,13 +59,11 @@ class DebtStore: ObservableObject {
             debts[index].isPaid.toggle()
             
             if debts[index].isPaid {
-                // Долг погашен - отменяем уведомления и отправляем уведомление
+                // Долг погашен - отменяем уведомления
                 NotificationManager.shared.cancelNotificationForDebt(debt)
-                NotificationManager.shared.showDebtPaidNotification(for: debt)
             } else if !wasPaid {
-                // Долг снова активен - планируем уведомления и отправляем уведомление о восстановлении
+                // Долг снова активен - планируем уведомления
                 scheduleNotificationsIfEnabled()
-                NotificationManager.shared.showDebtRestoredNotification(for: debt)
             }
             
             saveDebts()

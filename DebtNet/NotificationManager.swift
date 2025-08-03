@@ -144,19 +144,7 @@ class NotificationManager: ObservableObject {
         }
     }
     
-    func showDebtPaidNotification(for debt: Debt) {
-        let title = "Долг погашен"
-        let body = "Долг от \(debt.debtorName) на сумму \(debt.formattedAmount) отмечен как погашенный"
-        showImmediateNotification(title: title, body: body)
-    }
-    
 
-    
-    func showDebtRestoredNotification(for debt: Debt) {
-        let title = "Долг восстановлен"
-        let body = "Долг от \(debt.debtorName) на сумму \(debt.formattedAmount) возвращен в активное состояние"
-        showImmediateNotification(title: title, body: body)
-    }
     
     // MARK: - Создание сообщений для уведомлений
     private func createWeeklyReminderMessage(for debt: Debt) -> String {
