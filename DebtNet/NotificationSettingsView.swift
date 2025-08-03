@@ -78,42 +78,7 @@ struct NotificationSettingsView: View {
                             }
                         }
                         
-                        Button {
-                            NotificationTestHelper.scheduleTestDebtNotifications()
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                loadPendingNotifications()
-                                alertMessage = "Запланированы тестовые уведомления через 30, 60 и 90 секунд"
-                                showingAlert = true
-                            }
-                        } label: {
-                            HStack {
-                                Image(systemName: "bell.badge")
-                                    .foregroundColor(themeManager.warningColor)
-                                Text("Тест уведомлений")
-                                Spacer()
-                                Text("для демо")
-                                    .font(.caption)
-                                    .foregroundColor(themeManager.secondaryTextColor)
-                            }
-                        }
-                        
-                        Button {
-                            NotificationTestHelper.testImmediateNotifications()
-                            
-                            alertMessage = "Отправлены немедленные уведомления о погашении/восстановлении долгов"
-                            showingAlert = true
-                        } label: {
-                            HStack {
-                                Image(systemName: "bell.badge.fill")
-                                    .foregroundColor(.green)
-                                Text("Тест немедленных уведомлений")
-                                Spacer()
-                                Text("для свайпа")
-                                    .font(.caption)
-                                    .foregroundColor(themeManager.secondaryTextColor)
-                            }
-                        }
+
                     } header: {
                         Text("Управление")
                     } footer: {
