@@ -92,7 +92,7 @@ struct DebtDetailView: View {
                     showingEditDebt = true
                 }) {
                     Image(systemName: "pencil")
-                        .foregroundColor(Color(.systemGray))
+                        .foregroundColor(themeManager.systemGrayColor)
                         .font(.title2)
                 }
             }
