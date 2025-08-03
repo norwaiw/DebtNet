@@ -61,7 +61,7 @@ struct EditDebtView: View {
                             Button("Сохранить") {
                                 updateDebt()
                             }
-                            .foregroundColor(isFormValid ? .gray : themeManager.secondaryTextColor)
+                            .foregroundColor(isFormValid ? themeManager.accentColor : themeManager.disabledButtonColor)
                             .disabled(!isFormValid)
                         }
                         .padding(.horizontal)
@@ -105,7 +105,7 @@ struct EditDebtView: View {
                                     .foregroundColor(themeManager.primaryTextColor)
                                 
                                 TextField(debtType == .owedToMe ? "Введите имя должника" : "Введите имя кредитора", text: $debtorName)
-                                    .textFieldStyle(DarkTextFieldStyle())
+                                    .textFieldStyle(ThemedTextFieldStyle())
                             }
                             .padding(.horizontal)
                             
@@ -118,7 +118,7 @@ struct EditDebtView: View {
                                 HStack {
                                     TextField("0", text: $amount)
                                         .keyboardType(.decimalPad)
-                                        .textFieldStyle(DarkTextFieldStyle())
+                                        .textFieldStyle(ThemedTextFieldStyle())
                                     
                                     Text("₽")
                                         .foregroundColor(themeManager.secondaryTextColor)
@@ -144,7 +144,7 @@ struct EditDebtView: View {
                                     HStack {
                                         TextField("0", text: $interestRate)
                                             .keyboardType(.decimalPad)
-                                            .textFieldStyle(DarkTextFieldStyle())
+                                            .textFieldStyle(ThemedTextFieldStyle())
                                         
                                         Text("%")
                                             .foregroundColor(themeManager.secondaryTextColor)
@@ -169,7 +169,7 @@ struct EditDebtView: View {
                                     .foregroundColor(themeManager.primaryTextColor)
                                 
                                 TextField("За что долг?", text: $description)
-                                    .textFieldStyle(DarkTextFieldStyle())
+                                    .textFieldStyle(ThemedTextFieldStyle())
                             }
                             .padding(.horizontal)
                             

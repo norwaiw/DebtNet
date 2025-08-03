@@ -33,11 +33,11 @@ struct ContentView: View {
                         VStack(spacing: 4) {
                             Image(systemName: "folder")
                                 .font(.system(size: 20))
-                                .foregroundColor(selectedTab == 0 ? Color(red: 0.4, green: 0.4, blue: 0.4) : .gray)
+                                .foregroundColor(selectedTab == 0 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                             
                             Text("Долги")
                                 .font(.system(size: 12))
-                                .foregroundColor(selectedTab == 0 ? Color(red: 0.4, green: 0.4, blue: 0.4) : .gray)
+                                .foregroundColor(selectedTab == 0 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -49,11 +49,11 @@ struct ContentView: View {
                         VStack(spacing: 4) {
                             Image(systemName: "clock.fill")
                                 .font(.system(size: 20))
-                                .foregroundColor(selectedTab == 1 ? Color(red: 0.4, green: 0.4, blue: 0.4) : .gray)
+                                .foregroundColor(selectedTab == 1 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                             
                             Text("История")
                                 .font(.system(size: 12))
-                                .foregroundColor(selectedTab == 1 ? Color(red: 0.4, green: 0.4, blue: 0.4) : .gray)
+                                .foregroundColor(selectedTab == 1 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -65,11 +65,11 @@ struct ContentView: View {
                         VStack(spacing: 4) {
                             Image(systemName: "gearshape.fill")
                                 .font(.system(size: 20))
-                                .foregroundColor(selectedTab == 2 ? Color(red: 0.4, green: 0.4, blue: 0.4) : .gray)
+                                .foregroundColor(selectedTab == 2 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                             
                             Text("Настройки")
                                 .font(.system(size: 12))
-                                .foregroundColor(selectedTab == 2 ? Color(red: 0.4, green: 0.4, blue: 0.4) : .gray)
+                                .foregroundColor(selectedTab == 2 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -80,7 +80,7 @@ struct ContentView: View {
                 .overlay(
                     Rectangle()
                         .frame(height: 0.5)
-                        .foregroundColor(.gray.opacity(0.3)),
+                        .foregroundColor(themeManager.borderColor),
                     alignment: .top
                 )
             }
@@ -163,7 +163,7 @@ struct SettingsView: View {
                                 
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.gray)
+                                    .foregroundColor(themeManager.secondaryTextColor)
                             }
                         }
                         .padding(.horizontal, 20)

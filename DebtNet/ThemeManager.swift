@@ -66,6 +66,41 @@ class ThemeManager: ObservableObject {
         isDarkMode ? Color.red.opacity(0.3) : Color.red.opacity(0.2)
     }
     
+    // Цвета для кнопок и интерактивных элементов
+    var buttonTextColor: Color {
+        isDarkMode ? .white : .black
+    }
+    
+    var disabledButtonColor: Color {
+        isDarkMode ? .gray.opacity(0.5) : .gray.opacity(0.3)
+    }
+    
+    var accentColor: Color {
+        isDarkMode ? .blue.opacity(0.8) : .blue
+    }
+    
+    var successColor: Color {
+        isDarkMode ? .green.opacity(0.8) : .green
+    }
+    
+    var destructiveColor: Color {
+        isDarkMode ? .red.opacity(0.8) : .red
+    }
+    
+    var warningColor: Color {
+        isDarkMode ? .orange.opacity(0.8) : .orange
+    }
+    
+    // Цвета для разделителей и границ
+    var separatorColor: Color {
+        isDarkMode ? .gray.opacity(0.2) : .gray.opacity(0.15)
+    }
+    
+    // Цвета для системных элементов
+    var systemGrayColor: Color {
+        isDarkMode ? Color(.systemGray) : Color(.systemGray2)
+    }
+    
     func toggleTheme() {
         isDarkMode.toggle()
     }
