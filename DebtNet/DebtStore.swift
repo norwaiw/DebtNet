@@ -27,8 +27,6 @@ class DebtStore: ObservableObject {
     func deleteDebt(_ debt: Debt) {
         // Отменяем уведомления для удаляемого долга
         NotificationManager.shared.cancelNotificationForDebt(debt)
-        // Отправляем уведомление об удалении
-        NotificationManager.shared.showDebtDeletedNotification(for: debt)
         debts.removeAll { $0.id == debt.id }
         saveDebts()
     }

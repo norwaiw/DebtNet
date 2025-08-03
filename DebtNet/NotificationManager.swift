@@ -150,11 +150,7 @@ class NotificationManager: ObservableObject {
         showImmediateNotification(title: title, body: body)
     }
     
-    func showDebtDeletedNotification(for debt: Debt) {
-        let title = "Долг удален"
-        let body = "Долг от \(debt.debtorName) на сумму \(debt.formattedAmount) был удален"
-        showImmediateNotification(title: title, body: body)
-    }
+
     
     func showDebtRestoredNotification(for debt: Debt) {
         let title = "Долг восстановлен"
