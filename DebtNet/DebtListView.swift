@@ -464,12 +464,12 @@ struct DebtHistoryRowView: View {
                 }
             }
             
-            // Status icon - darker green for better visibility
+            // Status icon - same green as stat cards
             Button(action: {
                 showingStatusChangeAlert = true
             }) {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(Color(red: 0.0, green: 0.6, blue: 0.0))
+                    .foregroundColor(.green)
                     .font(.system(size: 24))
                     .background(
                         Circle()
@@ -635,12 +635,12 @@ struct ArchivedDebtRowView: View {
                 
                 Text("ПОГАШЕН")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(Color(red: 0.0, green: 0.6, blue: 0.0))
+                    .foregroundColor(.green)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(red: 0.0, green: 0.6, blue: 0.0).opacity(0.2))
+                            .fill(Color.green.opacity(0.2))
                     )
             }
             
