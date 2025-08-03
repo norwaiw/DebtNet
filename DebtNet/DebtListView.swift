@@ -402,7 +402,7 @@ struct DebtHistoryRowView: View {
     
     private var profileIcon: some View {
         Circle()
-            .fill(themeManager.isDarkMode ? Color.green.opacity(0.3) : Color.gray.opacity(0.2))
+            .fill(Color.green.opacity(0.3))
             .frame(width: 40, height: 40)
             .overlay(
                 Text(String(debt.debtorName.prefix(1)).uppercased())
