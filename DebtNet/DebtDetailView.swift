@@ -101,10 +101,10 @@ struct DebtDetailView: View {
             if debt.isPaid {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
+                        .foregroundColor(Color(red: 0.0, green: 0.6, blue: 0.0))
                     Text("ПОГАШЕН")
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(.green)
+                        .foregroundColor(Color(red: 0.0, green: 0.6, blue: 0.0))
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)

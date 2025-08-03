@@ -459,7 +459,7 @@ struct RecentActivityRow: View {
             HStack {
                 if debt.isPaid {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
+                        .foregroundColor(Color(red: 0.0, green: 0.6, blue: 0.0))
                 }
                 
                 Text(debt.formattedAmount)
