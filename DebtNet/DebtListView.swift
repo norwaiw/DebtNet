@@ -365,6 +365,7 @@ struct DebtHistoryRowView: View {
     @State private var showingStatusChangeAlert = false
     @State private var swipeOffset: CGFloat = 0
     @State private var showingDeleteButton = false
+    @State private var showingPayButton = false
     @State private var showingDetail = false
     
     private var dateFormatter: DateFormatter {
@@ -398,6 +399,31 @@ struct DebtHistoryRowView: View {
             .cornerRadius(12)
         }
         .padding(.trailing, 16)
+    }
+    
+    private var payButton: some View {
+        Button(action: {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                swipeOffset = 0
+                showingPayButton = false
+            }
+            // Add a small delay before marking as paid
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                debtStore.togglePaidStatus(debt)
+            }
+        }) {
+            VStack {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 20, weight: .bold))
+                Text("Погасить")
+                    .font(.system(size: 12, weight: .medium))
+            }
+            .foregroundColor(.white)
+            .frame(width: 80, height: 60)
+            .background(Color.green)
+            .cornerRadius(12)
+        }
+        .padding(.leading, 16)
     }
     
     private var profileIcon: some View {
@@ -511,24 +537,43 @@ struct DebtHistoryRowView: View {
     private var swipeGesture: some Gesture {
         DragGesture()
             .onChanged { value in
-                // Only allow swiping left (negative translation)
-                if value.translation.width < 0 {
+                let translation = value.translation.width
+                
+                if translation < 0 {
+                    // Swiping left - show delete button
                     withAnimation(.easeOut(duration: 0.1)) {
-                        swipeOffset = max(value.translation.width, -100)
+                        swipeOffset = max(translation, -100)
                         showingDeleteButton = swipeOffset < -50
+                        showingPayButton = false
+                    }
+                } else if translation > 0 {
+                    // Swiping right - show pay button
+                    withAnimation(.easeOut(duration: 0.1)) {
+                        swipeOffset = min(translation, 100)
+                        showingPayButton = swipeOffset > 50
+                        showingDeleteButton = false
                     }
                 }
             }
             .onEnded { value in
+                let translation = value.translation.width
+                
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    if value.translation.width < -80 {
-                        // If swiped far enough, show delete button
+                    if translation < -80 {
+                        // If swiped left far enough, show delete button
                         swipeOffset = -100
                         showingDeleteButton = true
+                        showingPayButton = false
+                    } else if translation > 80 {
+                        // If swiped right far enough, show pay button
+                        swipeOffset = 100
+                        showingPayButton = true
+                        showingDeleteButton = false
                     } else {
                         // Snap back to original position
                         swipeOffset = 0
                         showingDeleteButton = false
+                        showingPayButton = false
                     }
                 }
             }
@@ -536,8 +581,11 @@ struct DebtHistoryRowView: View {
     
     var body: some View {
         ZStack {
-            // Background delete action
+            // Background actions
             HStack {
+                if showingPayButton {
+                    payButton
+                }
                 Spacer()
                 if showingDeleteButton {
                     deleteButton
@@ -584,6 +632,7 @@ struct ArchivedDebtRowView: View {
     @State private var showingStatusChangeAlert = false
     @State private var swipeOffset: CGFloat = 0
     @State private var showingDeleteButton = false
+    @State private var showingRestoreButton = false
     @State private var showingDetail = false
     
     private var dateFormatter: DateFormatter {
@@ -617,6 +666,31 @@ struct ArchivedDebtRowView: View {
             .cornerRadius(12)
         }
         .padding(.trailing, 16)
+    }
+    
+    private var restoreButton: some View {
+        Button(action: {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                swipeOffset = 0
+                showingRestoreButton = false
+            }
+            // Add a small delay before restoring
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                debtStore.togglePaidStatus(debt)
+            }
+        }) {
+            VStack {
+                Image(systemName: "arrow.uturn.left.circle.fill")
+                    .font(.system(size: 20, weight: .bold))
+                Text("Вернуть")
+                    .font(.system(size: 12, weight: .medium))
+            }
+            .foregroundColor(.white)
+            .frame(width: 80, height: 60)
+            .background(Color.orange)
+            .cornerRadius(12)
+        }
+        .padding(.leading, 16)
     }
     
     private var archivedIcon: some View {
@@ -719,24 +793,43 @@ struct ArchivedDebtRowView: View {
     private var archivedSwipeGesture: some Gesture {
         DragGesture()
             .onChanged { value in
-                // Only allow swiping left (negative translation)
-                if value.translation.width < 0 {
+                let translation = value.translation.width
+                
+                if translation < 0 {
+                    // Swiping left - show delete button
                     withAnimation(.easeOut(duration: 0.1)) {
-                        swipeOffset = max(value.translation.width, -100)
+                        swipeOffset = max(translation, -100)
                         showingDeleteButton = swipeOffset < -50
+                        showingRestoreButton = false
+                    }
+                } else if translation > 0 {
+                    // Swiping right - show restore button
+                    withAnimation(.easeOut(duration: 0.1)) {
+                        swipeOffset = min(translation, 100)
+                        showingRestoreButton = swipeOffset > 50
+                        showingDeleteButton = false
                     }
                 }
             }
             .onEnded { value in
+                let translation = value.translation.width
+                
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    if value.translation.width < -80 {
-                        // If swiped far enough, show delete button
+                    if translation < -80 {
+                        // If swiped left far enough, show delete button
                         swipeOffset = -100
                         showingDeleteButton = true
+                        showingRestoreButton = false
+                    } else if translation > 80 {
+                        // If swiped right far enough, show restore button
+                        swipeOffset = 100
+                        showingRestoreButton = true
+                        showingDeleteButton = false
                     } else {
                         // Snap back to original position
                         swipeOffset = 0
                         showingDeleteButton = false
+                        showingRestoreButton = false
                     }
                 }
             }
@@ -744,8 +837,11 @@ struct ArchivedDebtRowView: View {
     
     var body: some View {
         ZStack {
-            // Background delete action
+            // Background actions
             HStack {
+                if showingRestoreButton {
+                    restoreButton
+                }
                 Spacer()
                 if showingDeleteButton {
                     deleteButton
