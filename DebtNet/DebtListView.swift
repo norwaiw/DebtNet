@@ -156,7 +156,7 @@ struct DebtListView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 20)
                                 .fill(selectedFilter == option ? Color.red : themeManager.cardBackgroundColor)
-                                .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
+                                .shadow(color: selectedFilter == option ? Color.red.opacity(0.4) : themeManager.shadowColor, radius: selectedFilter == option ? 6 : 1, x: 0, y: selectedFilter == option ? 2 : 1)
                         )
                 }
             }
