@@ -5,11 +5,6 @@ class NotificationTestHelper {
     
     // Тестирование немедленных уведомлений
     static func testImmediateNotifications() {
-        NotificationManager.shared.showImmediateNotification(
-            title: "Тест удаления долга", 
-            body: "Долг от Иван Иванов на сумму 5000 ₽ был удален"
-        )
-        
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             NotificationManager.shared.showImmediateNotification(
                 title: "Тест погашения долга", 
