@@ -30,7 +30,7 @@ class ThemeManager: ObservableObject {
     
     // Новые цвета для карточек и элементов интерфейса
     var cardBackgroundColor: Color {
-        isDarkMode ? Color.gray.opacity(0.1) : Color.white
+        isDarkMode ? Color(red: 0.15, green: 0.15, blue: 0.15) : Color.white
     }
     
     var cardSecondaryBackgroundColor: Color {
