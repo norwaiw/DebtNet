@@ -3,6 +3,28 @@ import UserNotifications
 
 class NotificationTestHelper {
     
+    // Тестирование немедленных уведомлений
+    static func testImmediateNotifications() {
+        NotificationManager.shared.showImmediateNotification(
+            title: "Тест удаления долга", 
+            body: "Долг от Иван Иванов на сумму 5000 ₽ был удален"
+        )
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            NotificationManager.shared.showImmediateNotification(
+                title: "Тест погашения долга", 
+                body: "Долг от Петр Петров на сумму 3000 ₽ отмечен как погашенный"
+            )
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            NotificationManager.shared.showImmediateNotification(
+                title: "Тест восстановления долга", 
+                body: "Долг от Сидор Сидоров на сумму 2000 ₽ возвращен в активное состояние"
+            )
+        }
+    }
+    
     // Создать тестовые уведомления с короткими интервалами для демонстрации
     static func scheduleTestNotifications() {
         let content = UNMutableNotificationContent()
