@@ -414,19 +414,6 @@ struct DebtHistoryRowView: View {
                     .foregroundColor(themeManager.primaryTextColor)
                 
                 Spacer()
-                
-                // Status badge
-                if debt.type == .owedToMe {
-                    Text("Должен мне")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(themeManager.isDarkMode ? .white : .black)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(themeManager.isDarkMode ? Color.gray.opacity(0.5) : Color.gray.opacity(0.3))
-                        )
-                }
             }
             
             Text(debt.description)
@@ -446,25 +433,35 @@ struct DebtHistoryRowView: View {
     
     private var amountSection: some View {
         VStack(alignment: .trailing, spacing: 4) {
-            // Main amount with proper formatting like on the screenshot
+            // Show amount with interest if interest rate exists, otherwise show base amount
             if debt.type == .owedToMe {
-                Text("\(Int(debt.amountWithInterest)) ₽")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.green)
-                
                 if debt.interestRate > 0 {
-                    Text("\(Int(debt.amount)) ₽")
-                        .font(.system(size: 14))
-                        .foregroundColor(themeManager.secondaryTextColor)
+                    Text("\(Int(debt.amountWithInterest)) ₽")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.green)
                     
                     Text("\(String(format: "%.1f", debt.interestRate))%")
                         .font(.system(size: 12))
                         .foregroundColor(themeManager.secondaryTextColor)
+                } else {
+                    Text("\(Int(debt.amount)) ₽")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.green)
                 }
             } else {
-                Text("-\(Int(debt.amount)) ₽")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.red)
+                if debt.interestRate > 0 {
+                    Text("-\(Int(debt.amountWithInterest)) ₽")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.red)
+                    
+                    Text("\(String(format: "%.1f", debt.interestRate))%")
+                        .font(.system(size: 12))
+                        .foregroundColor(themeManager.secondaryTextColor)
+                } else {
+                    Text("-\(Int(debt.amount)) ₽")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.red)
+                }
             }
             
             // Status icon
