@@ -119,6 +119,49 @@ class NotificationManager: ObservableObject {
         }
     }
     
+    // MARK: - Немедленные уведомления
+    func showImmediateNotification(title: String, body: String) {
+        guard isNotificationEnabled else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        content.badge = NSNumber(value: 1)
+        
+        // Используем минимальный интервал для немедленного показа
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.01, repeats: false)
+        let identifier = "immediate_\(UUID().uuidString)"
+        
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Ошибка при отправке немедленного уведомления: \(error)")
+            } else {
+                print("Уведомление отправлено: \(title)")
+            }
+        }
+    }
+    
+    func showDebtPaidNotification(for debt: Debt) {
+        let title = "Долг погашен"
+        let body = "Долг от \(debt.debtorName) на сумму \(debt.formattedAmount) отмечен как погашенный"
+        showImmediateNotification(title: title, body: body)
+    }
+    
+    func showDebtDeletedNotification(for debt: Debt) {
+        let title = "Долг удален"
+        let body = "Долг от \(debt.debtorName) на сумму \(debt.formattedAmount) был удален"
+        showImmediateNotification(title: title, body: body)
+    }
+    
+    func showDebtRestoredNotification(for debt: Debt) {
+        let title = "Долг восстановлен"
+        let body = "Долг от \(debt.debtorName) на сумму \(debt.formattedAmount) возвращен в активное состояние"
+        showImmediateNotification(title: title, body: body)
+    }
+    
     // MARK: - Создание сообщений для уведомлений
     private func createWeeklyReminderMessage(for debt: Debt) -> String {
         _ = debt.type == .owedToMe ? "вам должен" : "вы должны"

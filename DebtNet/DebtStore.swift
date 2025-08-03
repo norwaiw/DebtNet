@@ -27,6 +27,8 @@ class DebtStore: ObservableObject {
     func deleteDebt(_ debt: Debt) {
         // Отменяем уведомления для удаляемого долга
         NotificationManager.shared.cancelNotificationForDebt(debt)
+        // Отправляем уведомление об удалении
+        NotificationManager.shared.showDebtDeletedNotification(for: debt)
         debts.removeAll { $0.id == debt.id }
         saveDebts()
     }
@@ -59,11 +61,13 @@ class DebtStore: ObservableObject {
             debts[index].isPaid.toggle()
             
             if debts[index].isPaid {
-                // Долг погашен - отменяем уведомления
+                // Долг погашен - отменяем уведомления и отправляем уведомление
                 NotificationManager.shared.cancelNotificationForDebt(debt)
+                NotificationManager.shared.showDebtPaidNotification(for: debt)
             } else if !wasPaid {
-                // Долг снова активен - планируем уведомления
+                // Долг снова активен - планируем уведомления и отправляем уведомление о восстановлении
                 scheduleNotificationsIfEnabled()
+                NotificationManager.shared.showDebtRestoredNotification(for: debt)
             }
             
             saveDebts()

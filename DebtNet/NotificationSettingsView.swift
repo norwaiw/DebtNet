@@ -97,6 +97,23 @@ struct NotificationSettingsView: View {
                                     .foregroundColor(themeManager.secondaryTextColor)
                             }
                         }
+                        
+                        Button {
+                            NotificationTestHelper.testImmediateNotifications()
+                            
+                            alertMessage = "Отправлены немедленные уведомления об удалении/погашении долгов"
+                            showingAlert = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "bell.badge.fill")
+                                    .foregroundColor(.green)
+                                Text("Тест немедленных уведомлений")
+                                Spacer()
+                                Text("для свайпа")
+                                    .font(.caption)
+                                    .foregroundColor(themeManager.secondaryTextColor)
+                            }
+                        }
                     } header: {
                         Text("Управление")
                     } footer: {

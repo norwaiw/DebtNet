@@ -6,8 +6,7 @@ struct DebtListView: View {
     @EnvironmentObject var notificationManager: NotificationManager
     @State private var showingAddDebt = false
     @State private var selectedFilter: FilterOption = .all
-    @State private var showingDeleteAlert = false
-    @State private var debtToDelete: Debt?
+
     @State private var archiveOffset: CGFloat = 0
     @State private var showingArchive = false
     @State private var dragOffset: CGFloat = 0
@@ -65,19 +64,7 @@ struct DebtListView: View {
             NotificationSettingsView()
                 .environmentObject(themeManager)
         }
-        .alert("Удалить долг", isPresented: $showingDeleteAlert) {
-            Button("Отмена", role: .cancel) { }
-            Button("Удалить", role: .destructive) {
-                if let debt = debtToDelete {
-                    debtStore.deleteDebt(debt)
-                }
-                debtToDelete = nil
-            }
-        } message: {
-            if let debt = debtToDelete {
-                Text("Вы уверены, что хотите удалить долг от \(debt.debtorName) на сумму \(debt.formattedAmount)?")
-            }
-        }
+
     }
     
     private var mainContentView: some View {
@@ -254,8 +241,7 @@ struct DebtListView: View {
                     DebtHistoryRowView(debt: debt)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                debtToDelete = debt
-                                showingDeleteAlert = true
+                                debtStore.deleteDebt(debt)
                             } label: {
                                 Label("Удалить", systemImage: "trash")
                             }
@@ -336,8 +322,7 @@ struct DebtListView: View {
                     ArchivedDebtRowView(debt: debt)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                debtToDelete = debt
-                                showingDeleteAlert = true
+                                debtStore.deleteDebt(debt)
                             } label: {
                                 Label("Удалить", systemImage: "trash")
                             }
