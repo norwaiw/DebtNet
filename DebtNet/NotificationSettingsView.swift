@@ -101,7 +101,7 @@ struct NotificationSettingsView: View {
                         Button {
                             NotificationTestHelper.testImmediateNotifications()
                             
-                            alertMessage = "Отправлены немедленные уведомления об удалении/погашении долгов"
+                            alertMessage = "Отправлены немедленные уведомления о погашении/восстановлении долгов"
                             showingAlert = true
                         } label: {
                             HStack {
