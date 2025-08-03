@@ -395,76 +395,106 @@ struct DebtHistoryRowView: View {
         .padding(.trailing, 16)
     }
     
-    private var debtIcon: some View {
+    private var profileIcon: some View {
         Circle()
-            .fill(debt.type == .owedToMe ? Color.green : Color.red)
+            .fill(themeManager.isDarkMode ? Color.green.opacity(0.3) : Color.gray.opacity(0.2))
             .frame(width: 40, height: 40)
             .overlay(
-                Image(systemName: debt.type == .owedToMe ? "arrow.down" : "arrow.up")
-                    .foregroundColor(.white)
+                Text(String(debt.debtorName.prefix(1)).uppercased())
                     .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(themeManager.primaryTextColor)
             )
     }
     
     private var debtInfo: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(debt.debtorName)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(themeManager.primaryTextColor)
+        VStack(alignment: .leading, spacing: 2) {
+            HStack {
+                Text(debt.debtorName)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(themeManager.primaryTextColor)
+                
+                Spacer()
+                
+                // Status badge
+                if debt.type == .owedToMe {
+                    Text("Должен мне")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(themeManager.isDarkMode ? .white : .black)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(themeManager.isDarkMode ? Color.gray.opacity(0.5) : Color.gray.opacity(0.3))
+                        )
+                }
+            }
             
             Text(debt.description)
                 .font(.system(size: 14))
                 .foregroundColor(themeManager.secondaryTextColor)
                 .lineLimit(1)
             
-            Text(dateFormatter.string(from: debt.dateCreated))
-                .font(.system(size: 12))
-                .foregroundColor(themeManager.secondaryTextColor)
+            HStack {
+                Text(dateFormatter.string(from: debt.dateCreated))
+                    .font(.system(size: 12))
+                    .foregroundColor(themeManager.secondaryTextColor)
+                
+                Spacer()
+            }
         }
     }
     
     private var amountSection: some View {
         VStack(alignment: .trailing, spacing: 4) {
-            Text(debt.amountWithSign)
-                .font(.system(size: 16, weight: .bold))
-                .foregroundColor(debt.type == .owedToMe ? .green : .red)
-            
-            if debt.interestRate > 0 {
-                Text(debt.amountWithInterestAndSign)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor((debt.type == .owedToMe ? Color.green : Color.red).opacity(0.8))
+            // Main amount with proper formatting like on the screenshot
+            if debt.type == .owedToMe {
+                Text("\(Int(debt.amountWithInterest)) ₽")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.green)
                 
-                Text("\(String(format: "%.1f", debt.interestRate))%")
-                    .font(.system(size: 10))
-                    .foregroundColor(themeManager.secondaryTextColor)
+                if debt.interestRate > 0 {
+                    Text("\(Int(debt.amount)) ₽")
+                        .font(.system(size: 14))
+                        .foregroundColor(themeManager.secondaryTextColor)
+                    
+                    Text("\(String(format: "%.1f", debt.interestRate))%")
+                        .font(.system(size: 12))
+                        .foregroundColor(themeManager.secondaryTextColor)
+                }
             } else {
-                Text("RUB")
-                    .font(.system(size: 12))
-                    .foregroundColor(themeManager.secondaryTextColor)
+                Text("-\(Int(debt.amount)) ₽")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.red)
             }
             
-            // Quick status toggle button
+            // Status icon
             Button(action: {
                 showingStatusChangeAlert = true
             }) {
-                Image(systemName: "checkmark.circle")
+                Image(systemName: "checkmark.circle.fill")
                     .foregroundColor(.green)
-                    .font(.system(size: 20))
+                    .font(.system(size: 24))
+                    .background(
+                        Circle()
+                            .fill(themeManager.isDarkMode ? Color.black : Color.white)
+                            .frame(width: 26, height: 26)
+                    )
             }
             .buttonStyle(PlainButtonStyle())
         }
     }
     
     private var mainContent: some View {
-        HStack(spacing: 16) {
-            debtIcon
-            debtInfo
-            Spacer()
-            amountSection
+        VStack(spacing: 12) {
+            HStack(spacing: 12) {
+                profileIcon
+                debtInfo
+                amountSection
+            }
         }
-        .padding()
+        .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 16)
                 .fill(themeManager.cardBackgroundColor)
                 .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
         )
