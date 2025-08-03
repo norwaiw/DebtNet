@@ -13,19 +13,22 @@ struct NotificationSettingsView: View {
     
     var body: some View {
         NavigationView {
-            List {
+            ZStack {
+                themeManager.backgroundColor.ignoresSafeArea()
+                
+                List {
                 // Секция статуса уведомлений
                 Section {
                     HStack {
                         Image(systemName: notificationManager.isNotificationEnabled ? "bell.fill" : "bell.slash")
-                            .foregroundColor(notificationManager.isNotificationEnabled ? .green : .red)
+                            .foregroundColor(notificationManager.isNotificationEnabled ? themeManager.successColor : themeManager.destructiveColor)
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Уведомления")
                                 .font(.headline)
                             Text(notificationManager.isNotificationEnabled ? "Включены" : "Отключены")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(themeManager.secondaryTextColor)
                         }
                         
                         Spacer()
@@ -52,12 +55,12 @@ struct NotificationSettingsView: View {
                         } label: {
                             HStack {
                                 Image(systemName: "calendar.badge.plus")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(themeManager.accentColor)
                                 Text("Запланировать уведомления")
                                 Spacer()
                                 Text("\(activeDebtsWithDueDates.count) долгов")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(themeManager.secondaryTextColor)
                             }
                         }
                         
@@ -66,12 +69,12 @@ struct NotificationSettingsView: View {
                         } label: {
                             HStack {
                                 Image(systemName: "calendar.badge.minus")
-                                    .foregroundColor(.red)
+                                    .foregroundColor(themeManager.destructiveColor)
                                 Text("Отменить все уведомления")
                                 Spacer()
                                 Text("\(pendingNotifications.count)")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(themeManager.secondaryTextColor)
                             }
                         }
                         
@@ -86,12 +89,12 @@ struct NotificationSettingsView: View {
                         } label: {
                             HStack {
                                 Image(systemName: "bell.badge")
-                                    .foregroundColor(.orange)
+                                    .foregroundColor(themeManager.warningColor)
                                 Text("Тест уведомлений")
                                 Spacer()
                                 Text("для демо")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(themeManager.secondaryTextColor)
                             }
                         }
                     } header: {
@@ -135,7 +138,7 @@ struct NotificationSettingsView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
                                 Image(systemName: "calendar")
-                                    .foregroundColor(.orange)
+                                    .foregroundColor(themeManager.warningColor)
                                     .frame(width: 20)
                                 Text("За 7 дней до срока")
                                     .font(.caption)
@@ -151,7 +154,7 @@ struct NotificationSettingsView: View {
                             
                             HStack {
                                 Image(systemName: "alarm")
-                                    .foregroundColor(.red)
+                                    .foregroundColor(themeManager.destructiveColor)
                                     .frame(width: 20)
                                 Text("В день платежа")
                                     .font(.caption)
@@ -179,6 +182,7 @@ struct NotificationSettingsView: View {
                 Button("OK") { }
             } message: {
                 Text(alertMessage)
+            }
             }
         }
     }
@@ -232,13 +236,13 @@ struct NotificationRowView: View {
             
             Text(notification.content.body)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.secondary)
                 .lineLimit(2)
             
             if let triggerDate = (notification.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate() {
                 Text(formatDate(triggerDate))
                     .font(.caption)
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color.blue)
             }
         }
         .padding(.vertical, 2)
@@ -287,12 +291,12 @@ struct DebtNotificationRowView: View {
                         Text("Просрочено")
                             .font(.caption)
                             .fontWeight(.medium)
-                            .foregroundColor(.red)
+                            .foregroundColor(Color.red)
                     } else {
                         let daysLeft = Calendar.current.dateComponents([.day], from: Date(), to: dueDate).day ?? 0
                         Text("\(daysLeft) дн.")
                             .font(.caption)
-                            .foregroundColor(daysLeft <= 7 ? .orange : .secondary)
+                            .foregroundColor(daysLeft <= 7 ? Color.orange : Color.secondary)
                     }
                 }
             }
