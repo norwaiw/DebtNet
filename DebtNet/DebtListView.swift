@@ -106,9 +106,14 @@ struct DebtListView: View {
                 showingNotificationSettings = true
             }) {
                 ZStack {
-                    Image(systemName: notificationManager.isNotificationEnabled ? "bell.fill" : "bell.slash")
-                        .foregroundColor(notificationManager.isNotificationEnabled ? .blue : .gray)
-                        .font(.title3)
+                    // Blue circular background
+                    Circle()
+                        .fill(Color.blue)
+                        .frame(width: 40, height: 40)
+                    
+                    Image(systemName: notificationManager.isNotificationEnabled ? "bell.fill" : "bell")
+                        .foregroundColor(.white)
+                        .font(.system(size: 18, weight: .medium))
                     
                     // Badge for pending notifications
                     if notificationManager.isNotificationEnabled && upcomingDebtsCount > 0 {
@@ -118,7 +123,7 @@ struct DebtListView: View {
                             .foregroundColor(.white)
                             .frame(minWidth: 16, minHeight: 16)
                             .background(Circle().fill(Color.red))
-                            .offset(x: 8, y: -8)
+                            .offset(x: 12, y: -12)
                     }
                 }
             }
@@ -128,8 +133,8 @@ struct DebtListView: View {
                 showingAddDebt = true
             }) {
                 Image(systemName: "plus")
-                    .foregroundColor(.black)
-                    .font(.title2)
+                    .foregroundColor(.white)
+                    .font(.system(size: 18, weight: .bold))
                     .frame(width: 40, height: 40)
                     .background(Circle().fill(Color.red))
             }
