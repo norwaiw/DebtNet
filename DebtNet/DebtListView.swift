@@ -259,13 +259,6 @@ struct DebtListView: View {
                                 Label("Удалить", systemImage: "trash")
                             }
                             .tint(.red)
-                            
-                            Button {
-                                debtStore.togglePaidStatus(debt)
-                            } label: {
-                                Label("Оплачено", systemImage: "checkmark")
-                            }
-                            .tint(.green)
                         }
                 }
                 
@@ -555,14 +548,8 @@ struct DebtHistoryRowView: View {
                         showingDeleteButton = swipeOffset < -50
                         showingPayButton = false
                     }
-                } else if translation > 0 {
-                    // Swiping right - show pay button
-                    withAnimation(.easeOut(duration: 0.1)) {
-                        swipeOffset = min(translation, 100)
-                        showingPayButton = swipeOffset > 50
-                        showingDeleteButton = false
-                    }
                 }
+                // Removed swipe right functionality for paying debt
             }
             .onEnded { value in
                 let translation = value.translation.width
@@ -573,11 +560,6 @@ struct DebtHistoryRowView: View {
                         swipeOffset = -100
                         showingDeleteButton = true
                         showingPayButton = false
-                    } else if translation > 80 {
-                        // If swiped right far enough, show pay button
-                        swipeOffset = 100
-                        showingPayButton = true
-                        showingDeleteButton = false
                     } else {
                         // Snap back to original position
                         swipeOffset = 0
@@ -592,9 +574,6 @@ struct DebtHistoryRowView: View {
         ZStack {
             // Background actions
             HStack {
-                if showingPayButton {
-                    payButton
-                }
                 Spacer()
                 if showingDeleteButton {
                     deleteButton
