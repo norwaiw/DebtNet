@@ -5,14 +5,12 @@ import UserNotifications
 struct DebtNetApp: App {
     @StateObject private var debtStore = DebtStore()
     @StateObject private var themeManager = ThemeManager()
-    @StateObject private var notificationManager = NotificationManager.shared
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(debtStore)
                 .environmentObject(themeManager)
-                .environmentObject(notificationManager)
                 .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
                 .onAppear {
                     setupNotifications()
@@ -25,7 +23,7 @@ struct DebtNetApp: App {
         UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
         
         // Проверяем статус разрешений
-        notificationManager.checkNotificationStatus()
+        NotificationManager.shared.checkNotificationStatus()
     }
 }
 

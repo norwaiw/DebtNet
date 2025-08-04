@@ -78,7 +78,7 @@ struct SummaryCardsView: View {
                 
                 StatCard(
                     title: "Я должен",
-                    value: debtStore.totalIOwe,
+                    value: debtStore.totalIOweWithInterest,
                     color: .red,
                     icon: "arrow.up.circle.fill",
                     isActive: selectedFilter == .iOwe
@@ -171,7 +171,7 @@ struct StatCard: View {
             }
             .padding(.horizontal, 18)
             .padding(.vertical, 20)
-            .frame(maxWidth: .infinity, minHeight: 100, maxHeight: 100, alignment: .topLeading)
+            .frame(maxWidth: .infinity, minHeight: 100,  alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(isActive ? color.opacity(0.8) : themeManager.cardBackgroundColor)
