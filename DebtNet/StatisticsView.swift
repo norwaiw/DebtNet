@@ -64,26 +64,25 @@ struct SummaryCardsView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            HStack(spacing: 16) {
-                StatCard(
-                    title: "Мне должны",
-                    value: debtStore.totalOwedToMeWithInterest,
-                    color: .green,
-                    icon: "arrow.down.circle.fill",
-                    isActive: selectedFilter == .owedToMe
-                ) {
-                    selectedFilter = selectedFilter == .owedToMe ? .all : .owedToMe
-                }
-                
-                StatCard(
-                    title: "Я должен",
-                    value: debtStore.totalIOwe,
-                    color: .red,
-                    icon: "arrow.up.circle.fill",
-                    isActive: selectedFilter == .iOwe
-                ) {
-                    selectedFilter = selectedFilter == .iOwe ? .all : .iOwe
-                }
+            // Делаем карточки полной ширины и расположенные вертикально
+            StatCard(
+                title: "Мне должны",
+                value: debtStore.totalOwedToMeWithInterest,
+                color: .green,
+                icon: "arrow.down.circle.fill",
+                isActive: selectedFilter == .owedToMe
+            ) {
+                selectedFilter = selectedFilter == .owedToMe ? .all : .owedToMe
+            }
+            
+            StatCard(
+                title: "Я должен",
+                value: debtStore.totalIOwe,
+                color: .red,
+                icon: "arrow.up.circle.fill",
+                isActive: selectedFilter == .iOwe
+            ) {
+                selectedFilter = selectedFilter == .iOwe ? .all : .iOwe
             }
             
             HStack(spacing: 16) {
@@ -135,29 +134,31 @@ struct StatCard: View {
     
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 8) {
-                HStack {
+            HStack(spacing: 16) {
+                // Левая часть с иконкой и текстом
+                HStack(spacing: 12) {
                     Image(systemName: icon)
                         .foregroundColor(isActive ? .white : color)
                         .font(.title2)
-                    Spacer()
+                        .frame(width: 24, height: 24)
+                    
+                    Text(title)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(isActive ? .white : (themeManager.isDarkMode ? .white : themeManager.primaryTextColor))
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(1)
                 }
-                
-                Text(title)
-                    .font(.system(size: 14))
-                    .foregroundColor(themeManager.isDarkMode ? .white.opacity(0.7) : themeManager.secondaryTextColor)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
                 
                 Spacer()
                 
+                // Правая часть с суммой
                 Text(formattedValue)
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(isActive ? .white : color)
             }
-            .padding()
-            .frame(maxWidth: .infinity, minHeight: 110, maxHeight: 110, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isActive ? color.opacity(0.8) : themeManager.cardBackgroundColor)
@@ -167,7 +168,7 @@ struct StatCard: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(isActive ? color : themeManager.borderColor, lineWidth: isActive ? 2 : 1)
             )
-            .scaleEffect(isActive ? 0.95 : 1.0)
+            .scaleEffect(isActive ? 0.98 : 1.0)
             .animation(.easeInOut(duration: 0.2), value: isActive)
         }
         .buttonStyle(PlainButtonStyle())
