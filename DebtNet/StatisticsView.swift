@@ -279,13 +279,18 @@ struct FilteredDebtRow: View {
                     .lineLimit(1)
                 
                 HStack(spacing: 8) {
-                    Text(debt.category.rawValue)
-                        .font(.system(size: 12))
-                        .foregroundColor(.blue)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(Color.blue.opacity(0.2))
-                        .cornerRadius(4)
+                    HStack(spacing: 4) {
+                        Image(systemName: categoryIcon(for: debt.category))
+                            .font(.caption)
+                            .foregroundColor(categoryColor(for: debt.category))
+                        Text(debt.category.rawValue)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(categoryColor(for: debt.category))
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(categoryColor(for: debt.category).opacity(0.15))
+                    .cornerRadius(6)
                     
                     if debt.isOverdue {
                         Text("Просрочен")
@@ -347,12 +352,20 @@ struct CategoryStatisticsView: View {
                 .foregroundColor(themeManager.primaryTextColor)
             
             let categoryGroups = debtStore.debtsByCategory()
+            let totalAmount = categoryGroups.values.flatMap { $0 }.filter { !$0.isPaid }.reduce(0) { $0 + $1.amount }
             
             VStack(spacing: 12) {
                 ForEach(Debt.DebtCategory.allCases, id: \.self) { category in
                     if let debts = categoryGroups[category], !debts.isEmpty {
-                        CategoryRow(category: category, debts: debts)
+                        CategoryRow(category: category, debts: debts, totalGlobalAmount: totalAmount)
                     }
+                }
+                
+                // Показать пустые категории с заглушкой
+                ForEach(Debt.DebtCategory.allCases.filter { category in
+                    categoryGroups[category]?.isEmpty ?? true
+                }, id: \.self) { category in
+                    EmptyCategoryRow(category: category)
                 }
             }
         }
@@ -369,8 +382,9 @@ struct CategoryRow: View {
     @EnvironmentObject var themeManager: ThemeManager
     let category: Debt.DebtCategory
     let debts: [Debt]
+    let totalGlobalAmount: Double
     
-    private var totalAmount: Double {
+    private var categoryAmount: Double {
         debts.filter { !$0.isPaid }.reduce(0) { $0 + $1.amount }
     }
     
@@ -378,25 +392,211 @@ struct CategoryRow: View {
         debts.filter { !$0.isPaid }.count
     }
     
+    private var overdueCount: Int {
+        debts.filter { !$0.isPaid && $0.isOverdue }.count
+    }
+    
+    private var categoryIcon: String {
+        switch category {
+        case .personal:
+            return "person.circle.fill"
+        case .business:
+            return "briefcase.circle.fill"
+        case .family:
+            return "house.circle.fill"
+        case .friend:
+            return "heart.circle.fill"
+        case .other:
+            return "ellipsis.circle.fill"
+        }
+    }
+    
+    private var categoryColor: Color {
+        switch category {
+        case .personal:
+            return .blue
+        case .business:
+            return .purple
+        case .family:
+            return .green
+        case .friend:
+            return .pink
+        case .other:
+            return .orange
+        }
+    }
+    
+    private var progressPercentage: Double {
+        guard totalGlobalAmount > 0 else { return 0 }
+        return min(categoryAmount / totalGlobalAmount * 100, 100)
+    }
+    
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(category.rawValue)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(themeManager.primaryTextColor)
+        VStack(spacing: 12) {
+            HStack(spacing: 16) {
+                // Иконка категории
+                Image(systemName: categoryIcon)
+                    .font(.title2)
+                    .foregroundColor(categoryColor)
+                    .frame(width: 32, height: 32)
+                    .background(
+                        Circle()
+                            .fill(categoryColor.opacity(0.1))
+                    )
                 
-                Text("\(activeCount) активных")
-                    .font(.system(size: 14))
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(category.rawValue)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(themeManager.primaryTextColor)
+                        
+                        Spacer()
+                        
+                        Text(String(format: "%.0f ₽", categoryAmount))
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(categoryColor)
+                    }
+                    
+                    HStack(spacing: 16) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "doc.text")
+                                .font(.caption)
+                                .foregroundColor(themeManager.secondaryTextColor)
+                            Text("\(activeCount) активных")
+                                .font(.system(size: 12))
+                                .foregroundColor(themeManager.secondaryTextColor)
+                        }
+                        
+                        if overdueCount > 0 {
+                            HStack(spacing: 4) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.caption)
+                                    .foregroundColor(.red)
+                                Text("\(overdueCount) просрочено")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.red)
+                            }
+                        }
+                        
+                        Spacer()
+                    }
+                }
+            }
+            
+                            // Прогресс-бар
+                if categoryAmount > 0 {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Доля от общего объема")
+                            .font(.caption)
+                            .foregroundColor(themeManager.secondaryTextColor)
+                        
+                        Spacer()
+                        
+                        Text(String(format: "%.1f%%", progressPercentage))
+                            .font(.caption)
+                            .foregroundColor(categoryColor)
+                    }
+                    
+                    GeometryReader { geometry in
+                        ZStack(alignment: .leading) {
+                            Rectangle()
+                                .fill(themeManager.isDarkMode ? Color.gray.opacity(0.3) : Color.gray.opacity(0.2))
+                                .frame(height: 6)
+                                .cornerRadius(3)
+                            
+                            Rectangle()
+                                .fill(categoryColor)
+                                .frame(width: geometry.size.width * (progressPercentage / 100), height: 6)
+                                .cornerRadius(3)
+                                .animation(.easeInOut(duration: 0.8), value: progressPercentage)
+                        }
+                    }
+                    .frame(height: 6)
+                }
+            }
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(categoryColor.opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(categoryColor.opacity(0.2), lineWidth: 1)
+                )
+        )
+    }
+}
+
+struct EmptyCategoryRow: View {
+    @EnvironmentObject var themeManager: ThemeManager
+    let category: Debt.DebtCategory
+    
+    private var categoryIcon: String {
+        switch category {
+        case .personal:
+            return "person.circle"
+        case .business:
+            return "briefcase.circle"
+        case .family:
+            return "house.circle"
+        case .friend:
+            return "heart.circle"
+        case .other:
+            return "ellipsis.circle"
+        }
+    }
+    
+    private var categoryColor: Color {
+        switch category {
+        case .personal:
+            return .blue
+        case .business:
+            return .purple
+        case .family:
+            return .green
+        case .friend:
+            return .pink
+        case .other:
+            return .orange
+        }
+    }
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: categoryIcon)
+                .font(.title3)
+                .foregroundColor(categoryColor.opacity(0.5))
+                .frame(width: 32, height: 32)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(category.rawValue)
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(themeManager.secondaryTextColor)
+                
+                Text("Нет долгов")
+                    .font(.system(size: 12))
+                    .foregroundColor(themeManager.secondaryTextColor.opacity(0.7))
             }
             
             Spacer()
             
-            Text(String(format: "%.0f ₽", totalAmount))
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(themeManager.primaryTextColor)
+            Text("0 ₽")
+                .font(.system(size: 14))
+                .foregroundColor(themeManager.secondaryTextColor)
         }
         .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(categoryColor.opacity(0.02))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(categoryColor.opacity(0.1), lineWidth: 1)
+                )
+        )
+        .opacity(0.6)
     }
 }
 
@@ -561,6 +761,37 @@ private let shortDateFormatter: DateFormatter = {
     formatter.dateStyle = .short
     return formatter
 }()
+
+// Helper functions for category icons and colors
+private func categoryIcon(for category: Debt.DebtCategory) -> String {
+    switch category {
+    case .personal:
+        return "person.circle.fill"
+    case .business:
+        return "briefcase.circle.fill"
+    case .family:
+        return "house.circle.fill"
+    case .friend:
+        return "heart.circle.fill"
+    case .other:
+        return "ellipsis.circle.fill"
+    }
+}
+
+private func categoryColor(for category: Debt.DebtCategory) -> Color {
+    switch category {
+    case .personal:
+        return .blue
+    case .business:
+        return .purple
+    case .family:
+        return .green
+    case .friend:
+        return .pink
+    case .other:
+        return .orange
+    }
+}
 
 #Preview {
     StatisticsView()

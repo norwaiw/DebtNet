@@ -51,7 +51,7 @@ struct ContentView: View {
                                 .font(.system(size: 20))
                                 .foregroundColor(selectedTab == 1 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                             
-                            Text("История")
+                            Text("Статистика")
                                 .font(.system(size: 12))
                                 .foregroundColor(selectedTab == 1 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                         }
