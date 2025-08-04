@@ -18,7 +18,7 @@ struct StatisticsView: View {
             themeManager.backgroundColor.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 28) {
                     // Header
                     HStack {
                         Text("Статистика")
@@ -29,9 +29,9 @@ struct StatisticsView: View {
                         Spacer()
                     }
                     .padding(.horizontal)
-                    .padding(.top)
+                    .padding(.top, 8)
                     
-                    LazyVStack(spacing: 20) {
+                    LazyVStack(spacing: 24) {
                         // Summary Cards
                         SummaryCardsView(selectedFilter: $selectedFilter)
                         
@@ -63,7 +63,7 @@ struct SummaryCardsView: View {
     @Binding var selectedFilter: StatisticsView.DebtFilter
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 18) {
             // Делаем карточки полной ширины и расположенные вертикально
             StatCard(
                 title: "Мне должны",
@@ -85,7 +85,7 @@ struct SummaryCardsView: View {
                 selectedFilter = selectedFilter == .iOwe ? .all : .iOwe
             }
             
-            HStack(spacing: 16) {
+            HStack(spacing: 18) {
                 StatCard(
                     title: "Активных долгов",
                     value: Double(debtStore.activeDebts.count),
@@ -143,22 +143,22 @@ struct StatCard: View {
                         .frame(width: 24, height: 24)
                     
                     Text(title)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(isActive ? .white : (themeManager.isDarkMode ? .white : themeManager.primaryTextColor))
                         .multilineTextAlignment(.leading)
-                        .lineLimit(1)
+                        .lineLimit(2)
                 }
                 
                 Spacer()
                 
                 // Правая часть с суммой
                 Text(formattedValue)
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
                     .foregroundColor(isActive ? .white : color)
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 16)
-            .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60, alignment: .leading)
+            .padding(.vertical, 18)
+            .frame(maxWidth: .infinity, minHeight: 68, maxHeight: 68, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isActive ? color.opacity(0.8) : themeManager.cardBackgroundColor)
@@ -176,9 +176,9 @@ struct StatCard: View {
     
     private var formattedValue: String {
         if isCount {
-            return String(format: "%.0f", value)
+            return NumberFormatter.countFormatter.string(from: NSNumber(value: value)) ?? "0"
         } else {
-            return String(format: "%.0f ₽", value)
+            return NumberFormatter.currencyFormatter.string(from: NSNumber(value: value)) ?? "0 ₽"
         }
     }
 }
@@ -432,13 +432,13 @@ struct CategoryRow: View {
     }
     
     var body: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 16) {
+        VStack(spacing: 14) {
+            HStack(spacing: 18) {
                 // Иконка категории
                 Image(systemName: categoryIcon)
                     .font(.title2)
                     .foregroundColor(categoryColor)
-                    .frame(width: 32, height: 32)
+                    .frame(width: 36, height: 36)
                     .background(
                         Circle()
                             .fill(categoryColor.opacity(0.1))
@@ -447,13 +447,13 @@ struct CategoryRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Text(category.rawValue)
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 17, weight: .semibold))
                             .foregroundColor(themeManager.primaryTextColor)
                         
                         Spacer()
                         
-                        Text(String(format: "%.0f ₽", categoryAmount))
-                            .font(.system(size: 18, weight: .bold))
+                        Text(NumberFormatter.currencyFormatter.string(from: NSNumber(value: categoryAmount)) ?? "0 ₽")
+                            .font(.system(size: 19, weight: .bold, design: .rounded))
                             .foregroundColor(categoryColor)
                     }
                     
@@ -493,7 +493,7 @@ struct CategoryRow: View {
                         
                         Spacer()
                         
-                        Text(String(format: "%.1f%%", progressPercentage))
+                        Text(NumberFormatter.percentageFormatter.string(from: NSNumber(value: progressPercentage/100)) ?? "0%")
                             .font(.caption)
                             .foregroundColor(categoryColor)
                     }
@@ -516,8 +516,8 @@ struct CategoryRow: View {
                 }
             }
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
+        .padding(.horizontal, 20)
         .background(
             RoundedRectangle(cornerRadius: 8)
                 .fill(categoryColor.opacity(0.05))
@@ -745,12 +745,14 @@ struct OverdueDebtRow: View {
 
 private let dateFormatter: DateFormatter = {
     let formatter = DateFormatter()
-    formatter.dateStyle = .short
+    formatter.locale = Locale(identifier: "ru_RU")
+    formatter.dateStyle = .medium
     return formatter
 }()
 
 private let recentDateFormatter: DateFormatter = {
     let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "ru_RU")
     formatter.dateStyle = .short
     formatter.timeStyle = .short
     return formatter
@@ -758,6 +760,7 @@ private let recentDateFormatter: DateFormatter = {
 
 private let shortDateFormatter: DateFormatter = {
     let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "ru_RU")
     formatter.dateStyle = .short
     return formatter
 }()
@@ -791,6 +794,41 @@ private func categoryColor(for category: Debt.DebtCategory) -> Color {
     case .other:
         return .orange
     }
+}
+
+// MARK: - Number Formatters
+extension NumberFormatter {
+    static let currencyFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.currencySymbol = "₽"
+        formatter.maximumFractionDigits = 0
+        formatter.minimumFractionDigits = 0
+        formatter.groupingSeparator = " "
+        formatter.usesGroupingSeparator = true
+        return formatter
+    }()
+    
+    static let countFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.maximumFractionDigits = 0
+        formatter.minimumFractionDigits = 0
+        formatter.groupingSeparator = " "
+        formatter.usesGroupingSeparator = true
+        return formatter
+    }()
+    
+    static let percentageFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .percent
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.maximumFractionDigits = 1
+        formatter.minimumFractionDigits = 1
+        return formatter
+    }()
 }
 
 #Preview {
