@@ -68,23 +68,36 @@ struct DebtListView: View {
     }
     
     private var mainContentView: some View {
-        VStack(spacing: 20) {
-            headerView
-            filterButtonsView
-            summaryCardsView
-            archiveIndicatorView
+        VStack(spacing: 0) {
+            VStack(spacing: 20) {
+                headerView
+                filterButtonsView
+                summaryCardsView
+                archiveIndicatorView
+            }
+            .padding(.bottom, 20)
+            
+            // Список долгов должен занимать всё оставшееся пространство
             debtListView
-            Spacer()
         }
         .offset(y: dragOffset * 0.3)
     }
     
     private var headerView: some View {
         HStack {
-            Text("История долгов")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(themeManager.primaryTextColor)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("История долгов")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(themeManager.primaryTextColor)
+                
+                // Показываем количество долгов
+                if !filteredDebts.isEmpty {
+                    Text("\(filteredDebts.count) \(filteredDebts.count == 1 ? "долг" : filteredDebts.count < 5 ? "долга" : "долгов")")
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                }
+            }
             
             Spacer()
             
@@ -255,9 +268,20 @@ struct DebtListView: View {
                             .tint(.green)
                         }
                 }
+                
+                // Добавляем пустое пространство в конце для лучшего UX
+                if !filteredDebts.isEmpty {
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: 20)
+                }
             }
             .padding(.horizontal)
+            .padding(.bottom, 20) // Добавляем отступ снизу для лучшего UX
         }
+        .scrollIndicators(.visible) // Показываем индикаторы скролла
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipped() // Обрезаем содержимое чтобы не выходило за границы
         .gesture(
             DragGesture()
                 .onChanged { value in
