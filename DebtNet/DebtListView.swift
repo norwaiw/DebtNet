@@ -3,7 +3,7 @@ import SwiftUI
 struct DebtListView: View {
     @EnvironmentObject var debtStore: DebtStore
     @EnvironmentObject var themeManager: ThemeManager
-    @EnvironmentObject var notificationManager: NotificationManager
+    @ObservedObject var notificationManager = NotificationManager.shared
     @State private var showingAddDebt = false
     @State private var selectedFilter: FilterOption = .all
 
@@ -202,7 +202,7 @@ struct DebtListView: View {
                 .font(.system(size: 14))
                 .foregroundColor(themeManager.isDarkMode ? .white.opacity(0.7) : themeManager.secondaryTextColor)
             
-            Text("\(Int(debtStore.totalIOwe)) ₽")
+            Text("\(Int(debtStore.totalIOweWithInterest)) ₽")
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.red)
             

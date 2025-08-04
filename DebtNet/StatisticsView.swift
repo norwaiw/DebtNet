@@ -78,7 +78,7 @@ struct SummaryCardsView: View {
                 
                 StatCard(
                     title: "Я должен",
-                    value: debtStore.totalIOwe,
+                    value: debtStore.totalIOweWithInterest,
                     color: .red,
                     icon: "arrow.up.circle.fill",
                     isActive: selectedFilter == .iOwe
