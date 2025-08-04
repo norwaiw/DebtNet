@@ -90,7 +90,7 @@ struct ContentView: View {
 
 struct SettingsView: View {
     @EnvironmentObject var themeManager: ThemeManager
-    @EnvironmentObject var notificationManager: NotificationManager
+    @ObservedObject var notificationManager = NotificationManager.shared
     @State private var showingNotificationSettings = false
     
     var body: some View {
