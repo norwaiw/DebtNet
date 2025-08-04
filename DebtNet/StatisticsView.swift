@@ -64,7 +64,7 @@ struct SummaryCardsView: View {
     
     var body: some View {
         VStack(spacing: 18) {
-            // Делаем карточки полной ширины и расположенные вертикально
+            // Первый ряд карточек
             HStack(spacing: 18) {
                 StatCard(
                     title: "Мне должны",
@@ -86,6 +86,8 @@ struct SummaryCardsView: View {
                     selectedFilter = selectedFilter == .iOwe ? .all : .iOwe
                 }
             }
+            
+            // Второй ряд карточек  
             HStack(spacing: 18) {
                 StatCard(
                     title: "Активных долгов",
@@ -135,38 +137,51 @@ struct StatCard: View {
     
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 16) {
-                // Левая часть с иконкой и текстом
-                HStack(spacing: 12) {
+            VStack(spacing: 12) {
+                // Иконка вверху
+                HStack {
                     Image(systemName: icon)
                         .foregroundColor(isActive ? .white : color)
                         .font(.title2)
-                        .frame(width: 24, height: 24)
+                        .frame(width: 28, height: 28)
                     
-                    Text(title)
-                        .foregroundColor(isActive ? .white : (themeManager.isDarkMode ? .white : themeManager.primaryTextColor))
-                        .multilineTextAlignment(.leading)
+                    Spacer()
                 }
                 
-                
-                // Правая часть с суммой
-                Text(formattedValue)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundColor(isActive ? .white : color)
+                // Текст и значение снизу
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text(title)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(isActive ? .white : (themeManager.isDarkMode ? .white : themeManager.primaryTextColor))
+                            .multilineTextAlignment(.leading)
+                            .lineLimit(2)
+                        
+                        Spacer()
+                    }
+                    
+                    HStack {
+                        Text(formattedValue)
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundColor(isActive ? .white : color)
+                        
+                        Spacer()
+                    }
+                }
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 18)
-            .frame(maxWidth: .infinity, minHeight: 68, maxHeight: 68, alignment: .leading)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity, minHeight: 100, maxHeight: 100, alignment: .topLeading)
             .background(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 16)
                     .fill(isActive ? color.opacity(0.8) : themeManager.cardBackgroundColor)
-                    .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
+                    .shadow(color: themeManager.shadowColor, radius: 4, x: 0, y: 2)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isActive ? color : themeManager.borderColor, lineWidth: isActive ? 2 : 1)
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(isActive ? color : themeManager.borderColor, lineWidth: isActive ? 2 : 0.5)
             )
-            .scaleEffect(isActive ? 0.98 : 1.0)
+            .scaleEffect(isActive ? 0.95 : 1.0)
             .animation(.easeInOut(duration: 0.2), value: isActive)
         }
         .buttonStyle(PlainButtonStyle())
