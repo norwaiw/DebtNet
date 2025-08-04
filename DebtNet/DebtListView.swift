@@ -9,7 +9,6 @@ struct DebtListView: View {
 
     @State private var archiveOffset: CGFloat = 0
     @State private var showingArchive = false
-    @State private var dragOffset: CGFloat = 0
     @State private var showingNotificationSettings = false
     
     enum FilterOption: String, CaseIterable {
@@ -80,7 +79,6 @@ struct DebtListView: View {
             // Список долгов должен занимать всё оставшееся пространство
             debtListView
         }
-        .offset(y: dragOffset * 0.3)
     }
     
     private var headerView: some View {
@@ -275,22 +273,14 @@ struct DebtListView: View {
         .scrollIndicators(.visible) // Показываем индикаторы скролла
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipped() // Обрезаем содержимое чтобы не выходило за границы
-        .gesture(
-            DragGesture()
-                .onChanged { value in
-                    if value.translation.height > 0 && !archivedDebts.isEmpty {
-                        dragOffset = value.translation.height
-                    }
+        .refreshable {
+            // This provides native pull-to-refresh behavior
+            if !archivedDebts.isEmpty {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showingArchive = true
                 }
-                .onEnded { value in
-                    if value.translation.height > 100 && !archivedDebts.isEmpty {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showingArchive = true
-                        }
-                    }
-                    dragOffset = 0
-                }
-        )
+            }
+        }
     }
     
     @ViewBuilder
@@ -540,8 +530,10 @@ struct DebtHistoryRowView: View {
         DragGesture()
             .onChanged { value in
                 let translation = value.translation.width
+                let verticalTranslation = value.translation.height
                 
-                if translation < 0 {
+                // Only respond to horizontal swipes (horizontal movement > vertical movement)
+                if abs(translation) > abs(verticalTranslation) && translation < 0 {
                     // Swiping left - show delete button
                     withAnimation(.easeOut(duration: 0.1)) {
                         swipeOffset = max(translation, -100)
@@ -549,19 +541,29 @@ struct DebtHistoryRowView: View {
                         showingPayButton = false
                     }
                 }
-                // Removed swipe right functionality for paying debt
             }
             .onEnded { value in
                 let translation = value.translation.width
+                let verticalTranslation = value.translation.height
                 
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    if translation < -80 {
-                        // If swiped left far enough, show delete button
-                        swipeOffset = -100
-                        showingDeleteButton = true
-                        showingPayButton = false
-                    } else {
-                        // Snap back to original position
+                // Only respond to horizontal swipes
+                if abs(translation) > abs(verticalTranslation) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        if translation < -80 {
+                            // If swiped left far enough, show delete button
+                            swipeOffset = -100
+                            showingDeleteButton = true
+                            showingPayButton = false
+                        } else {
+                            // Snap back to original position
+                            swipeOffset = 0
+                            showingDeleteButton = false
+                            showingPayButton = false
+                        }
+                    }
+                } else {
+                    // Reset swipe state for vertical scrolls
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                         swipeOffset = 0
                         showingDeleteButton = false
                         showingPayButton = false
@@ -782,39 +784,54 @@ struct ArchivedDebtRowView: View {
         DragGesture()
             .onChanged { value in
                 let translation = value.translation.width
+                let verticalTranslation = value.translation.height
                 
-                if translation < 0 {
-                    // Swiping left - show delete button
-                    withAnimation(.easeOut(duration: 0.1)) {
-                        swipeOffset = max(translation, -100)
-                        showingDeleteButton = swipeOffset < -50
-                        showingRestoreButton = false
-                    }
-                } else if translation > 0 {
-                    // Swiping right - show restore button
-                    withAnimation(.easeOut(duration: 0.1)) {
-                        swipeOffset = min(translation, 100)
-                        showingRestoreButton = swipeOffset > 50
-                        showingDeleteButton = false
+                // Only respond to horizontal swipes (horizontal movement > vertical movement)
+                if abs(translation) > abs(verticalTranslation) {
+                    if translation < 0 {
+                        // Swiping left - show delete button
+                        withAnimation(.easeOut(duration: 0.1)) {
+                            swipeOffset = max(translation, -100)
+                            showingDeleteButton = swipeOffset < -50
+                            showingRestoreButton = false
+                        }
+                    } else if translation > 0 {
+                        // Swiping right - show restore button
+                        withAnimation(.easeOut(duration: 0.1)) {
+                            swipeOffset = min(translation, 100)
+                            showingRestoreButton = swipeOffset > 50
+                            showingDeleteButton = false
+                        }
                     }
                 }
             }
             .onEnded { value in
                 let translation = value.translation.width
+                let verticalTranslation = value.translation.height
                 
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    if translation < -80 {
-                        // If swiped left far enough, show delete button
-                        swipeOffset = -100
-                        showingDeleteButton = true
-                        showingRestoreButton = false
-                    } else if translation > 80 {
-                        // If swiped right far enough, show restore button
-                        swipeOffset = 100
-                        showingRestoreButton = true
-                        showingDeleteButton = false
-                    } else {
-                        // Snap back to original position
+                // Only respond to horizontal swipes
+                if abs(translation) > abs(verticalTranslation) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        if translation < -80 {
+                            // If swiped left far enough, show delete button
+                            swipeOffset = -100
+                            showingDeleteButton = true
+                            showingRestoreButton = false
+                        } else if translation > 80 {
+                            // If swiped right far enough, show restore button
+                            swipeOffset = 100
+                            showingRestoreButton = true
+                            showingDeleteButton = false
+                        } else {
+                            // Snap back to original position
+                            swipeOffset = 0
+                            showingDeleteButton = false
+                            showingRestoreButton = false
+                        }
+                    }
+                } else {
+                    // Reset swipe state for vertical scrolls
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                         swipeOffset = 0
                         showingDeleteButton = false
                         showingRestoreButton = false
