@@ -90,11 +90,15 @@ struct EditDebtView: View {
                                                     .padding(.vertical, 12)
                                                     .background(
                                                         RoundedRectangle(cornerRadius: 25)
-                                                            .fill(debtType == type ? 
-                                                                  (type == .owedToMe ? Color.green : Color.red) : 
+                                                            .fill(debtType == type ?
+                                                                  (type == .owedToMe ? Color.green : Color.red) :
                                                                   themeManager.cardBackgroundColor)
-                                                        .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
                                                     )
+                                                    // Base subtle shadow
+                                                    .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
+                                                    // Glow when the button is selected
+                                                    .shadow(color: debtType == type ? (type == .owedToMe ? Color.green.opacity(0.6) : Color.red.opacity(0.6)) : Color.clear,
+                                                            radius: 6, x: 0, y: 0)
                                             }
                                         }
                                         Spacer()
@@ -205,6 +209,7 @@ struct EditDebtView: View {
                                         .padding(.horizontal)
                                     }
                                 }
+                                .padding(.horizontal)
                                 
                                 // Due Date
                                 VStack(alignment: .leading, spacing: 8) {
