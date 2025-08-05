@@ -42,13 +42,13 @@ struct StatisticsView: View {
                             // Category Statistics
                             CategoryStatisticsView()
                             
-                            // Recent Activity
-                            RecentActivityView()
-                            
                             // Overdue Debts Alert
                             if !debtStore.overdueDebts.isEmpty {
                                 OverdueDebtsView()
                             }
+                            
+                            // Recent Activity
+                            RecentActivityView()
                         }
                     }
                     .padding(.horizontal)
