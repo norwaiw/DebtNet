@@ -24,13 +24,18 @@ struct DebtDetailView: View {
     }
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                themeManager.backgroundColor.ignoresSafeArea()
+        ZStack {
+            themeManager.backgroundColor.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Custom Navigation Bar
+                headerSection
+                    .padding()
+                    .background(themeManager.backgroundColor)
                 
+                // Scrollable Content
                 ScrollView {
                     VStack(spacing: 24) {
-                        headerSection
                         amountSection
                         detailsSection
                         datesSection
@@ -40,7 +45,6 @@ struct DebtDetailView: View {
                     .padding()
                 }
             }
-            .navigationBarHidden(true)
         }
         .alert("Удалить долг", isPresented: $showingDeleteAlert) {
             Button("Отмена", role: .cancel) { }
