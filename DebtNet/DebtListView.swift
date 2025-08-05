@@ -47,12 +47,7 @@ struct DebtListView: View {
         NavigationView {
             ZStack {
                 themeManager.backgroundColor.ignoresSafeArea()
-                ScrollView{
-                    VStack(spacing: 0) {
-                        mainContentView
-                        archiveSection
-                    }
-                }
+                mainContentView
             }
             .navigationBarHidden(true)
         }
@@ -68,17 +63,31 @@ struct DebtListView: View {
     }
     
     private var mainContentView: some View {
-        VStack(spacing: 0) {
-            VStack(spacing: 20) {
-                headerView
-                filterButtonsView
-                summaryCardsView
-                archiveIndicatorView
+        ScrollView {
+            VStack(spacing: 0) {
+                VStack(spacing: 20) {
+                    headerView
+                    filterButtonsView
+                    summaryCardsView
+                    archiveIndicatorView
+                }
+                .padding(.bottom, 20)
+                
+                // Список долгов
+                debtListContent
+                
+                // Секция архива
+                archiveSection
             }
-            .padding(.bottom, 20)
-            
-            // Список долгов должен занимать всё оставшееся пространство
-            debtListView
+        }
+        .scrollIndicators(.visible)
+        .refreshable {
+            // This provides native pull-to-refresh behavior
+            if !archivedDebts.isEmpty {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showingArchive = true
+                }
+            }
         }
     }
     
@@ -244,6 +253,31 @@ struct DebtListView: View {
                 }
             }
         }
+    }
+    
+    private var debtListContent: some View {
+        LazyVStack(spacing: 12) {
+            ForEach(filteredDebts) { debt in
+                DebtHistoryRowView(debt: debt)
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        Button(role: .destructive) {
+                            debtStore.deleteDebt(debt)
+                        } label: {
+                            Label("Удалить", systemImage: "trash")
+                        }
+                        .tint(.red)
+                    }
+            }
+            
+            // Добавляем пустое пространство в конце для лучшего UX
+            if !filteredDebts.isEmpty {
+                Rectangle()
+                    .fill(Color.clear)
+                    .frame(height: 20)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.bottom, 20) // Добавляем отступ снизу для лучшего UX
     }
     
     private var debtListView: some View {
