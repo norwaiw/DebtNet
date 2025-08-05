@@ -81,6 +81,8 @@ struct DebtListView: View {
             }
         }
         .scrollIndicators(.visible)
+        .contentShape(Rectangle()) // Добавляем contentShape для всего ScrollView
+        .coordinateSpace(name: "scrollView") // Добавляем координатное пространство для лучшего скроллинга
         .refreshable {
             // This provides native pull-to-refresh behavior
             if !archivedDebts.isEmpty {
@@ -148,6 +150,7 @@ struct DebtListView: View {
             }
         }
         .padding(.horizontal)
+        .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
     }
     
     private var filterButtonsView: some View {
@@ -171,6 +174,7 @@ struct DebtListView: View {
             Spacer()
         }
         .padding(.horizontal)
+        .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
     }
     
     private var summaryCardsView: some View {
@@ -179,6 +183,7 @@ struct DebtListView: View {
             iOweCard
         }
         .padding(.horizontal)
+        .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
     }
     
     private var owedToMeCard: some View {
@@ -203,6 +208,7 @@ struct DebtListView: View {
                 .fill(themeManager.owedToMeCardBackground)
                 .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
         )
+        .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
     }
     
     private var iOweCard: some View {
@@ -226,6 +232,7 @@ struct DebtListView: View {
                 .fill(themeManager.iOweCardBackground)
                 .shadow(color: themeManager.shadowColor, radius: 2, x: 0, y: 1)
         )
+        .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
     }
     
     @ViewBuilder
@@ -247,6 +254,7 @@ struct DebtListView: View {
                 Spacer()
             }
             .padding(.horizontal)
+            .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
             .onTapGesture {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     showingArchive = true
@@ -278,6 +286,7 @@ struct DebtListView: View {
         }
         .padding(.horizontal)
         .padding(.bottom, 20) // Добавляем отступ снизу для лучшего UX
+        .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
     }
     
     private var debtListView: some View {
@@ -331,6 +340,7 @@ struct DebtListView: View {
                     .shadow(color: themeManager.shadowColor, radius: 3, x: 0, y: 2)
             )
             .transition(.move(edge: .bottom).combined(with: .opacity))
+            .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
         }
     }
     
@@ -355,6 +365,7 @@ struct DebtListView: View {
         }
         .padding(.horizontal)
         .padding(.top)
+        .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
     }
     
     private var archiveListView: some View {
@@ -379,6 +390,7 @@ struct DebtListView: View {
                 }
             }
             .padding(.horizontal)
+            .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
     }
 }
 
@@ -556,16 +568,17 @@ struct DebtHistoryRowView: View {
             showingDetail = true
         }
         .gesture(swipeGesture)
+        .allowsHitTesting(true) // Убеждаемся, что жесты работают правильно
     }
     
     private var swipeGesture: some Gesture {
-        DragGesture()
+        DragGesture(minimumDistance: 10) // Увеличиваем минимальное расстояние для активации жеста
             .onChanged { value in
                 let translation = value.translation.width
                 let verticalTranslation = value.translation.height
                 
-                // Only respond to horizontal swipes (horizontal movement > vertical movement)
-                if abs(translation) > abs(verticalTranslation) && translation < 0 {
+                // Улучшенная логика: только горизонтальные свайпы с большим порогом
+                if abs(translation) > abs(verticalTranslation) * 1.5 && translation < 0 {
                     // Swiping left - show delete button
                     withAnimation(.easeOut(duration: 0.1)) {
                         swipeOffset = max(translation, -100)
@@ -578,8 +591,8 @@ struct DebtHistoryRowView: View {
                 let translation = value.translation.width
                 let verticalTranslation = value.translation.height
                 
-                // Only respond to horizontal swipes
-                if abs(translation) > abs(verticalTranslation) {
+                // Улучшенная логика: только четкие горизонтальные свайпы
+                if abs(translation) > abs(verticalTranslation) * 1.5 {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                         if translation < -80 {
                             // If swiped left far enough, show delete button
@@ -617,6 +630,7 @@ struct DebtHistoryRowView: View {
             
             mainContent
         }
+        .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
                 debtStore.deleteDebt(debt)
@@ -810,16 +824,17 @@ struct ArchivedDebtRowView: View {
             showingDetail = true
         }
         .gesture(archivedSwipeGesture)
+        .allowsHitTesting(true) // Убеждаемся, что жесты работают правильно
     }
     
     private var archivedSwipeGesture: some Gesture {
-        DragGesture()
+        DragGesture(minimumDistance: 10) // Увеличиваем минимальное расстояние для активации жеста
             .onChanged { value in
                 let translation = value.translation.width
                 let verticalTranslation = value.translation.height
                 
-                // Only respond to horizontal swipes (horizontal movement > vertical movement)
-                if abs(translation) > abs(verticalTranslation) {
+                // Улучшенная логика: только горизонтальные свайпы с большим порогом
+                if abs(translation) > abs(verticalTranslation) * 1.5 {
                     if translation < 0 {
                         // Swiping left - show delete button
                         withAnimation(.easeOut(duration: 0.1)) {
@@ -841,8 +856,8 @@ struct ArchivedDebtRowView: View {
                 let translation = value.translation.width
                 let verticalTranslation = value.translation.height
                 
-                // Only respond to horizontal swipes
-                if abs(translation) > abs(verticalTranslation) {
+                // Улучшенная логика: только четкие горизонтальные свайпы
+                if abs(translation) > abs(verticalTranslation) * 1.5 {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                         if translation < -80 {
                             // If swiped left far enough, show delete button
@@ -888,6 +903,7 @@ struct ArchivedDebtRowView: View {
             
             archivedMainContent
         }
+        .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
                 debtStore.deleteDebt(debt)
