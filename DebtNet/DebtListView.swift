@@ -567,7 +567,7 @@ struct DebtHistoryRowView: View {
         .onTapGesture {
             showingDetail = true
         }
-        .gesture(swipeGesture)
+        .simultaneousGesture(swipeGesture)
         .allowsHitTesting(true) // Убеждаемся, что жесты работают правильно
     }
     
@@ -823,7 +823,7 @@ struct ArchivedDebtRowView: View {
         .onTapGesture {
             showingDetail = true
         }
-        .gesture(archivedSwipeGesture)
+        .simultaneousGesture(archivedSwipeGesture)
         .allowsHitTesting(true) // Убеждаемся, что жесты работают правильно
     }
     
