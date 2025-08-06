@@ -69,28 +69,20 @@ struct DebtListView: View {
                     headerView
                     filterButtonsView
                     summaryCardsView
-                    archiveIndicatorView
+                    archiveNavigationLinkView
                 }
                 .padding(.bottom, 20)
                 
                 // Список долгов
                 debtListContent
                 
-                // Секция архива
-                archiveSection
+                // Убрали секцию архива, так как теперь переходим на отдельный экран
             }
         }
         .scrollIndicators(.visible)
         .contentShape(Rectangle()) // Добавляем contentShape для всего ScrollView
         .coordinateSpace(name: "scrollView") // Добавляем координатное пространство для лучшего скроллинга
-        .refreshable {
-            // This provides native pull-to-refresh behavior
-            if !archivedDebts.isEmpty {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    showingArchive = true
-                }
-            }
-        }
+        // Убрали pull-to-refresh для архива
     }
     
     private var headerView: some View {
@@ -235,31 +227,30 @@ struct DebtListView: View {
         .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
     }
     
+    // Новый NavigationLink к экрану архива
     @ViewBuilder
-    private var archiveIndicatorView: some View {
+    private var archiveNavigationLinkView: some View {
         if !archivedDebts.isEmpty {
-            HStack {
-                Spacer()
-                VStack(spacing: 4) {
-                    Text("Архив (\(archivedDebts.count))")
-                        .font(.system(size: 12))
-                        .foregroundColor(themeManager.secondaryTextColor)
-                    
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 12))
-                        .foregroundColor(themeManager.secondaryTextColor)
-                        .rotationEffect(.degrees(showingArchive ? 180 : 0))
-                        .animation(.easeInOut(duration: 0.3), value: showingArchive)
+            NavigationLink {
+                ArchivedDebtsView()
+                    .environmentObject(debtStore)
+                    .environmentObject(themeManager)
+            } label: {
+                HStack {
+                    Spacer()
+                    VStack(spacing: 4) {
+                        Text("Архив (\(archivedDebts.count))")
+                            .font(.system(size: 12))
+                            .foregroundColor(themeManager.secondaryTextColor)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12))
+                            .foregroundColor(themeManager.secondaryTextColor)
+                    }
+                    Spacer()
                 }
-                Spacer()
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
-            .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
-            .onTapGesture {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    showingArchive = true
-                }
-            }
+            .buttonStyle(PlainButtonStyle())
         }
     }
     
