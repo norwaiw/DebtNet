@@ -39,6 +39,7 @@ class DebtStore: ObservableObject {
     func markAsPaid(_ debt: Debt) {
         if let index = debts.firstIndex(where: { $0.id == debt.id }) {
             debts[index].isPaid = true
+            debts[index].amountPaid = debts[index].amount
             // Отменяем уведомления для погашенного долга
             NotificationManager.shared.cancelNotificationForDebt(debt)
             saveDebts()
@@ -48,6 +49,7 @@ class DebtStore: ObservableObject {
     func markAsUnpaid(_ debt: Debt) {
         if let index = debts.firstIndex(where: { $0.id == debt.id }) {
             debts[index].isPaid = false
+            debts[index].amountPaid = 0
             saveDebts()
             scheduleNotificationsIfEnabled()
         }
@@ -57,6 +59,14 @@ class DebtStore: ObservableObject {
         if let index = debts.firstIndex(where: { $0.id == debt.id }) {
             let wasPaid = debts[index].isPaid
             debts[index].isPaid.toggle()
+            
+            if debts[index].isPaid {
+                // Помечаем как погашенный
+                debts[index].amountPaid = debts[index].amount
+            } else {
+                // Возвращаем в активные
+                debts[index].amountPaid = 0
+            }
             
             if debts[index].isPaid {
                 // Долг погашен - отменяем уведомления
@@ -120,7 +130,21 @@ class DebtStore: ObservableObject {
         Dictionary(grouping: debts) { $0.category }
     }
     
-
+    // MARK: - Partial Payments
+    /// Добавляет частичный платёж к долгу. Если сумма выплат достигает полной суммы, долг помечается как погашенный.
+    func addPayment(amount: Double, to debt: Debt) {
+        guard amount > 0 else { return }
+        guard let index = debts.firstIndex(where: { $0.id == debt.id }) else { return }
+        debts[index].amountPaid += amount
+        // Не допускаем превышения полной суммы
+        if debts[index].amountPaid >= debts[index].amount {
+            debts[index].amountPaid = debts[index].amount
+            debts[index].isPaid = true
+            // Отменяем уведомления, если долг погашен
+            NotificationManager.shared.cancelNotificationForDebt(debt)
+        }
+        saveDebts()
+    }
     
     // MARK: - Notifications
     private func scheduleNotificationsIfEnabled() {
