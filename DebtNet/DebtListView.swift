@@ -648,6 +648,7 @@ struct DebtHistoryRowView: View {
         .sheet(isPresented: $showingDetail) {
             DebtDetailView(debt: debt)
                 .environmentObject(themeManager)
+                .environmentObject(debtStore)
         }
     }
 }
@@ -921,6 +922,7 @@ struct ArchivedDebtRowView: View {
         .sheet(isPresented: $showingDetail) {
             DebtDetailView(debt: debt)
                 .environmentObject(themeManager)
+                .environmentObject(debtStore)
         }
     }
 }
