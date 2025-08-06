@@ -8,6 +8,10 @@ struct DebtDetailView: View {
     @State private var showingEditDebt = false
     @State private var showingDeleteAlert = false
     @State private var showingStatusChangeAlert = false
+    @State private var showingAddPaymentSheet = false
+    
+    // Temporary state for new payment amount
+    @State private var paymentAmountText: String = ""
     
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -67,6 +71,11 @@ struct DebtDetailView: View {
         }
         .sheet(isPresented: $showingEditDebt) {
             EditDebtView(debt: debt)
+                .environmentObject(debtStore)
+                .environmentObject(themeManager)
+        }
+        .sheet(isPresented: $showingAddPaymentSheet) {
+            AddPaymentView(debt: debt)
                 .environmentObject(debtStore)
                 .environmentObject(themeManager)
         }
@@ -147,6 +156,18 @@ struct DebtDetailView: View {
                 Text(debt.type.rawValue)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(themeManager.primaryTextColor)
+            }
+            
+            // Progress bar for partial payments
+            if debt.amountPaid > 0 && !debt.isPaid {
+                VStack(alignment: .leading, spacing: 4) {
+                    ProgressView(value: debt.progress)
+                        .tint(Color.green)
+                    Text("Погашено: \(debt.formattedAmountPaid) / \(debt.formattedAmount)")
+                        .font(.system(size: 14))
+                        .foregroundColor(themeManager.secondaryTextColor)
+                }
+                .padding(.top, 8)
             }
         }
         .padding()
@@ -232,6 +253,27 @@ struct DebtDetailView: View {
     
     private var actionsSection: some View {
         VStack(spacing: 12) {
+            // Add partial payment button
+            if !debt.isPaid {
+                Button(action: {
+                    showingAddPaymentSheet = true
+                }) {
+                    HStack {
+                        Image(systemName: "plus.circle")
+                            .font(.system(size: 20))
+                        Text("Добавить платеж")
+                            .font(.system(size: 16, weight: .medium))
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.blue)
+                    )
+                }
+            }
+            
             // Mark as paid/unpaid button
             Button(action: {
                 showingStatusChangeAlert = true
