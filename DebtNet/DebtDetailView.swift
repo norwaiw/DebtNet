@@ -78,6 +78,7 @@ struct DebtDetailView: View {
             AddPaymentView(debt: debt)
                 .environmentObject(debtStore)
                 .environmentObject(themeManager)
+                .interactiveDismissDisabled(true)
         }
     }
     
