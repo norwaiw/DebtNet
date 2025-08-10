@@ -10,6 +10,7 @@ struct AddPaymentView: View {
     @State private var paymentText: String = ""
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
+    @FocusState private var isTextFieldFocused: Bool
     
     private var paymentAmount: Double {
         Double(paymentText.replacingOccurrences(of: ",", with: ".")) ?? 0
@@ -27,6 +28,7 @@ struct AddPaymentView: View {
                         TextField("0", text: $paymentText)
                             .keyboardType(.decimalPad)
                             .textFieldStyle(ThemedTextFieldStyle())
+                            .focused($isTextFieldFocused)
                         
                         Text("₽")
                             .foregroundColor(themeManager.secondaryTextColor)
@@ -40,9 +42,11 @@ struct AddPaymentView: View {
             .background(themeManager.backgroundColor.ignoresSafeArea())
             .navigationBarItems(
                 leading: Button("Отмена") {
+                    isTextFieldFocused = false
                     presentationMode.wrappedValue.dismiss()
                 },
                 trailing: Button("Готово") {
+                    isTextFieldFocused = false
                     addPayment()
                 }
                 .disabled(!isValid)
