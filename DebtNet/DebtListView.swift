@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct DebtListView: View {
     @EnvironmentObject var debtStore: DebtStore
@@ -10,6 +11,8 @@ struct DebtListView: View {
     @State private var archiveOffset: CGFloat = 0
     @State private var showingArchive = false
     @State private var showingNotificationSettings = false
+    
+    @State private var visibleDebts: [Debt] = []
     
     enum FilterOption: String, CaseIterable {
         case all = "Все"
@@ -59,6 +62,9 @@ struct DebtListView: View {
             NotificationSettingsView()
                 .environmentObject(themeManager)
         }
+        .onAppear { updateVisibleDebts() }
+        .onChange(of: selectedFilter) { _ in updateVisibleDebts() }
+        .onReceive(debtStore.$debts) { _ in updateVisibleDebts() }
 
     }
     
@@ -94,8 +100,8 @@ struct DebtListView: View {
                     .foregroundColor(themeManager.primaryTextColor)
                 
                 // Показываем количество долгов
-                if !filteredDebts.isEmpty {
-                    Text("\(filteredDebts.count) \(filteredDebts.count == 1 ? "долг" : filteredDebts.count < 5 ? "долга" : "долгов")")
+                if !visibleDebts.isEmpty {
+                    Text("\(visibleDebts.count) \(visibleDebts.count == 1 ? "долг" : visibleDebts.count < 5 ? "долга" : "долгов")")
                         .font(.caption)
                         .foregroundColor(themeManager.secondaryTextColor)
                 }
@@ -256,20 +262,12 @@ struct DebtListView: View {
     
     private var debtListContent: some View {
         LazyVStack(spacing: 12) {
-            ForEach(filteredDebts) { debt in
+            ForEach(visibleDebts) { debt in
                 DebtHistoryRowView(debt: debt)
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
-                            debtStore.deleteDebt(debt)
-                        } label: {
-                            Label("Удалить", systemImage: "trash")
-                        }
-                        .tint(.red)
-                    }
             }
             
             // Добавляем пустое пространство в конце для лучшего UX
-            if !filteredDebts.isEmpty {
+            if !visibleDebts.isEmpty {
                 Rectangle()
                     .fill(Color.clear)
                     .frame(height: 20)
@@ -283,20 +281,12 @@ struct DebtListView: View {
     private var debtListView: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
-                ForEach(filteredDebts) { debt in
+                ForEach(visibleDebts) { debt in
                     DebtHistoryRowView(debt: debt)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                debtStore.deleteDebt(debt)
-                            } label: {
-                                Label("Удалить", systemImage: "trash")
-                            }
-                            .tint(.red)
-                        }
                 }
                 
                 // Добавляем пустое пространство в конце для лучшего UX
-                if !filteredDebts.isEmpty {
+                if !visibleDebts.isEmpty {
                     Rectangle()
                         .fill(Color.clear)
                         .frame(height: 20)
@@ -363,25 +353,23 @@ struct DebtListView: View {
             LazyVStack(spacing: 12) {
                 ForEach(archivedDebts) { debt in
                     ArchivedDebtRowView(debt: debt)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                debtStore.deleteDebt(debt)
-                            } label: {
-                                Label("Удалить", systemImage: "trash")
-                            }
-                            .tint(.red)
-                            
-                            Button {
-                                debtStore.togglePaidStatus(debt)
-                            } label: {
-                                Label("Вернуть", systemImage: "arrow.uturn.left")
-                            }
-                            .tint(.orange)
-                        }
                 }
             }
             .padding(.horizontal)
             .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
+    }
+}
+
+private extension DebtListView {
+    func updateVisibleDebts() {
+        switch selectedFilter {
+        case .all:
+            visibleDebts = debtStore.activeDebts.sorted { $0.dateCreated > $1.dateCreated }
+        case .owedToMe:
+            visibleDebts = debtStore.activeDebts.filter { $0.type == .owedToMe }.sorted { $0.dateCreated > $1.dateCreated }
+        case .iOwe:
+            visibleDebts = debtStore.activeDebts.filter { $0.type == .iOwe }.sorted { $0.dateCreated > $1.dateCreated }
+        }
     }
 }
 
@@ -622,21 +610,6 @@ struct DebtHistoryRowView: View {
             mainContent
         }
         .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
-                debtStore.deleteDebt(debt)
-            } label: {
-                Label("Удалить", systemImage: "trash")
-            }
-            .tint(.red)
-            
-            Button {
-                debtStore.togglePaidStatus(debt)
-            } label: {
-                Label("Оплачено", systemImage: "checkmark")
-            }
-            .tint(.green)
-        }
         .alert("Отметить долг как погашенный?", isPresented: $showingStatusChangeAlert) {
             Button("Отмена", role: .cancel) { }
             Button("Погасить", role: .destructive) {
@@ -896,21 +869,6 @@ struct ArchivedDebtRowView: View {
             archivedMainContent
         }
         .contentShape(Rectangle()) // Добавляем contentShape для лучшего скроллинга
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
-                debtStore.deleteDebt(debt)
-            } label: {
-                Label("Удалить", systemImage: "trash")
-            }
-            .tint(.red)
-            
-            Button {
-                debtStore.togglePaidStatus(debt)
-            } label: {
-                Label("Вернуть", systemImage: "arrow.uturn.left")
-            }
-            .tint(.orange)
-        }
         .alert("Вернуть долг в активное состояние?", isPresented: $showingStatusChangeAlert) {
             Button("Отмена", role: .cancel) { }
             Button("Вернуть", role: .none) {

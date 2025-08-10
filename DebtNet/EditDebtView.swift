@@ -226,9 +226,8 @@ struct EditDebtView: View {
                                     
                                     if hasDueDate {
                                         DatePicker("Дата погашения", selection: $dueDate, displayedComponents: .date)
-                                            .datePickerStyle(WheelDatePickerStyle())
+                                            .datePickerStyle(.compact)
                                             .labelsHidden()
-                                            .colorScheme(themeManager.isDarkMode ? .dark : .light)
                                     }
                                 }
                                 .padding(.horizontal)
