@@ -63,7 +63,7 @@ struct DebtListView: View {
                 .environmentObject(themeManager)
         }
         .onAppear { updateVisibleDebts() }
-        .onChange(of: selectedFilter) { _ in updateVisibleDebts() }
+        .onChange(of: selectedFilter) { updateVisibleDebts() }
         .onReceive(debtStore.$debts) { _ in updateVisibleDebts() }
 
     }
