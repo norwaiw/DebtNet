@@ -74,11 +74,10 @@ struct DebtDetailView: View {
                 .environmentObject(debtStore)
                 .environmentObject(themeManager)
         }
-        .sheet(isPresented: $showingAddPaymentSheet) {
+        .fullScreenCover(isPresented: $showingAddPaymentSheet) {
             AddPaymentView(debt: debt)
                 .environmentObject(debtStore)
                 .environmentObject(themeManager)
-                .interactiveDismissDisabled(true)
         }
     }
     
@@ -160,7 +159,7 @@ struct DebtDetailView: View {
             }
             
             // Progress bar for partial payments
-            if debt.amountPaid > 0 && !debt.isPaid {
+            if !debt.isPaid {
                 VStack(alignment: .leading, spacing: 4) {
                     ProgressView(value: debt.progress)
                         .tint(Color.green)
@@ -171,6 +170,7 @@ struct DebtDetailView: View {
                 .padding(.top, 8)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .center)
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)

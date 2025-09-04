@@ -69,26 +69,28 @@ struct DebtListView: View {
     }
     
     private var mainContentView: some View {
-        ScrollView {
-            VStack(spacing: 0) {
+        VStack {
+            headerView
+            
+            filterButtonsView
+            
+            ScrollView {
                 VStack(spacing: 20) {
-                    headerView
-                    filterButtonsView
                     summaryCardsView
+                    
                     archiveNavigationLinkView
+                    
+                    // Список долгов
+                    debtListContent
+                    
+                    // Убрали секцию архива, так как теперь переходим на отдельный экран
                 }
-                .padding(.bottom, 20)
-                
-                // Список долгов
-                debtListContent
-                
-                // Убрали секцию архива, так как теперь переходим на отдельный экран
             }
+            .scrollIndicators(.visible)
+            .contentShape(Rectangle()) // Добавляем contentShape для всего ScrollView
+            .coordinateSpace(name: "scrollView") // Добавляем координатное пространство для лучшего скроллинга
+            // Убрали pull-to-refresh для архива
         }
-        .scrollIndicators(.visible)
-        .contentShape(Rectangle()) // Добавляем contentShape для всего ScrollView
-        .coordinateSpace(name: "scrollView") // Добавляем координатное пространство для лучшего скроллинга
-        // Убрали pull-to-refresh для архива
     }
     
     private var headerView: some View {
