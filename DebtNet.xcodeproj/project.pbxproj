@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		16DD74D62E482E9400E82EA4 /* ScrollViewKeyboardDismissModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16DD74D52E482E9400E82EA4 /* ScrollViewKeyboardDismissModifier.swift */; };
-		16DD74D72E482E9400E82EA4 /* AddPaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16DD74D32E482E9400E82EA4 /* AddPaymentView.swift */; };
+
 		16DD74D82E482E9400E82EA4 /* ArchivedDebtsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16DD74D42E482E9400E82EA4 /* ArchivedDebtsView.swift */; };
 		3D7B3A2A2B5F1C2000123456 /* DebtNetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7B3A292B5F1C2000123456 /* DebtNetApp.swift */; };
 		3D7B3A2C2B5F1C2000123456 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7B3A2B2B5F1C2000123456 /* ContentView.swift */; };
@@ -27,7 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		16DD74D32E482E9400E82EA4 /* AddPaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPaymentView.swift; sourceTree = "<group>"; };
+
 		16DD74D42E482E9400E82EA4 /* ArchivedDebtsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivedDebtsView.swift; sourceTree = "<group>"; };
 		16DD74D52E482E9400E82EA4 /* ScrollViewKeyboardDismissModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewKeyboardDismissModifier.swift; sourceTree = "<group>"; };
 		3D7B3A262B5F1C2000123456 /* DebtNet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DebtNet.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -85,7 +85,6 @@
 				3D7B3A3B2B5F1C5000123456 /* AddDebtView.swift */,
 				3D7B3A3D2B5F1C6000123456 /* DebtListView.swift */,
 				3D7B3A3F2B5F1C7000123456 /* StatisticsView.swift */,
-				16DD74D32E482E9400E82EA4 /* AddPaymentView.swift */,
 				16DD74D42E482E9400E82EA4 /* ArchivedDebtsView.swift */,
 				16DD74D52E482E9400E82EA4 /* ScrollViewKeyboardDismissModifier.swift */,
 				3D7B3A412B5F1C8000123456 /* DebtDetailView.swift */,
@@ -177,7 +176,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				16DD74D62E482E9400E82EA4 /* ScrollViewKeyboardDismissModifier.swift in Sources */,
-				16DD74D72E482E9400E82EA4 /* AddPaymentView.swift in Sources */,
+
 				16DD74D82E482E9400E82EA4 /* ArchivedDebtsView.swift in Sources */,
 				3D7B3A2C2B5F1C2000123456 /* ContentView.swift in Sources */,
 				3D7B3A382B5F1C3000123456 /* Debt.swift in Sources */,
