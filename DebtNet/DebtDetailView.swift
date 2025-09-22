@@ -8,10 +8,16 @@ struct DebtDetailView: View {
     @State private var showingEditDebt = false
     @State private var showingDeleteAlert = false
     @State private var showingStatusChangeAlert = false
-    @State private var showingAddPaymentSheet = false
+    @State private var showingAddPaymentAlert = false
+    @State private var showingPaymentErrorAlert = false
+    @State private var paymentErrorMessage: String = ""
     
     // Temporary state for new payment amount
     @State private var paymentAmountText: String = ""
+    
+    private var currentDebt: Debt {
+        debtStore.debts.first(where: { $0.id == debt.id }) ?? debt
+    }
     
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -53,31 +59,49 @@ struct DebtDetailView: View {
         .alert("Удалить долг", isPresented: $showingDeleteAlert) {
             Button("Отмена", role: .cancel) { }
             Button("Удалить", role: .destructive) {
-                debtStore.deleteDebt(debt)
+                debtStore.deleteDebt(currentDebt)
                 presentationMode.wrappedValue.dismiss()
             }
         } message: {
-            Text("Вы уверены, что хотите удалить долг от \(debt.debtorName) на сумму \(debt.formattedAmount)?")
+            Text("Вы уверены, что хотите удалить долг от \(currentDebt.debtorName) на сумму \(currentDebt.formattedAmount)?")
         }
-        .alert(debt.isPaid ? "Вернуть долг в активное состояние?" : "Отметить долг как погашенный?", isPresented: $showingStatusChangeAlert) {
+        .alert(currentDebt.isPaid ? "Вернуть долг в активное состояние?" : "Отметить долг как погашенный?", isPresented: $showingStatusChangeAlert) {
             Button("Отмена", role: .cancel) { }
-            Button(debt.isPaid ? "Вернуть" : "Погасить") {
-                debtStore.togglePaidStatus(debt)
+            Button(currentDebt.isPaid ? "Вернуть" : "Погасить") {
+                debtStore.togglePaidStatus(currentDebt)
             }
         } message: {
-            Text(debt.isPaid ? 
-                 "Долг от \(debt.debtorName) на сумму \(debt.formattedAmount) будет возвращён в активное состояние" :
-                 "Вы уверены, что долг от \(debt.debtorName) на сумму \(debt.formattedAmount) погашен?")
+            Text(currentDebt.isPaid ? 
+                 "Долг от \(currentDebt.debtorName) на сумму \(currentDebt.formattedAmount) будет возвращён в активное состояние" :
+                 "Вы уверены, что долг от \(currentDebt.debtorName) на сумму \(currentDebt.formattedAmount) погашен?")
         }
         .sheet(isPresented: $showingEditDebt) {
-            EditDebtView(debt: debt)
+            EditDebtView(debt: currentDebt)
                 .environmentObject(debtStore)
                 .environmentObject(themeManager)
         }
-        .fullScreenCover(isPresented: $showingAddPaymentSheet) {
-            AddPaymentView(debt: debt)
-                .environmentObject(debtStore)
+        .overlay(alignment: .center) {
+            if showingAddPaymentAlert {
+                PaymentInputAlert(
+                    title: "Новый платеж",
+                    message: "Введите сумму частичного платежа",
+                    amountText: $paymentAmountText,
+                    maxAmount: currentDebt.remainingAmount,
+                    onCancel: {
+                        showingAddPaymentAlert = false
+                        paymentAmountText = ""
+                    },
+                    onConfirm: {
+                        commitPayment()
+                    }
+                )
                 .environmentObject(themeManager)
+            }
+        }
+        .alert("Ошибка", isPresented: $showingPaymentErrorAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(paymentErrorMessage)
         }
     }
     
@@ -111,7 +135,7 @@ struct DebtDetailView: View {
             }
             
             // Status indicator
-            if debt.isPaid {
+            if currentDebt.isPaid {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.green)
@@ -133,9 +157,9 @@ struct DebtDetailView: View {
         VStack(spacing: 16) {
             // Large amount display
             VStack(spacing: 8) {
-                Text(debt.amountWithSign)
+                Text(currentDebt.amountWithSign)
                     .font(.system(size: 48, weight: .bold))
-                    .foregroundColor(debt.type == .owedToMe ? .green : .red)
+                    .foregroundColor(currentDebt.type == .owedToMe ? .green : .red)
                 
                 Text("RUB")
                     .font(.system(size: 16))
@@ -145,25 +169,25 @@ struct DebtDetailView: View {
             // Type indicator
             HStack {
                 Circle()
-                    .fill(debt.type == .owedToMe ? Color.green : Color.red)
+                    .fill(currentDebt.type == .owedToMe ? Color.green : Color.red)
                     .frame(width: 24, height: 24)
                     .overlay(
-                        Image(systemName: debt.type == .owedToMe ? "arrow.down" : "arrow.up")
+                        Image(systemName: currentDebt.type == .owedToMe ? "arrow.down" : "arrow.up")
                             .foregroundColor(.white)
                             .font(.system(size: 12, weight: .bold))
                     )
                 
-                Text(debt.type.rawValue)
+                Text(currentDebt.type.rawValue)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(themeManager.primaryTextColor)
             }
             
             // Progress bar for partial payments
-            if !debt.isPaid {
+            if !currentDebt.isPaid {
                 VStack(alignment: .leading, spacing: 4) {
-                    ProgressView(value: debt.progress)
+                    ProgressView(value: currentDebt.progress)
                         .tint(Color.green)
-                    Text("Погашено: \(debt.formattedAmountPaid) / \(debt.formattedAmount)")
+                    Text("Погашено: \(currentDebt.formattedAmountPaid) / \(currentDebt.formattedAmount)")
                         .font(.system(size: 14))
                         .foregroundColor(themeManager.secondaryTextColor)
                 }
@@ -187,11 +211,11 @@ struct DebtDetailView: View {
                 .foregroundColor(themeManager.primaryTextColor)
             
             VStack(spacing: 12) {
-                DetailRow(title: "Должник", value: debt.debtorName)
-                DetailRow(title: "Описание", value: debt.description.isEmpty ? "Не указано" : debt.description)
-                DetailRow(title: "Категория", value: debt.category.rawValue)
+                DetailRow(title: "Должник", value: currentDebt.debtorName)
+                DetailRow(title: "Описание", value: currentDebt.description.isEmpty ? "Не указано" : currentDebt.description)
+                DetailRow(title: "Категория", value: currentDebt.category.rawValue)
                 
-                if debt.isOverdue && !debt.isPaid {
+                if currentDebt.isOverdue && !currentDebt.isPaid {
                     HStack {
                         Text("Статус")
                             .font(.system(size: 14))
@@ -230,14 +254,14 @@ struct DebtDetailView: View {
             VStack(spacing: 12) {
                 DetailRow(
                     title: "Дата создания",
-                    value: "\(dateFormatter.string(from: debt.dateCreated)) в \(timeFormatter.string(from: debt.dateCreated))"
+                    value: "\(dateFormatter.string(from: currentDebt.dateCreated)) в \(timeFormatter.string(from: currentDebt.dateCreated))"
                 )
                 
-                if let dueDate = debt.dueDate {
+                if let dueDate = currentDebt.dueDate {
                     DetailRow(
                         title: "Срок возврата",
                         value: dateFormatter.string(from: dueDate),
-                        valueColor: debt.isOverdue && !debt.isPaid ? .red : nil
+                        valueColor: currentDebt.isOverdue && !currentDebt.isPaid ? .red : nil
                     )
                 } else {
                     DetailRow(title: "Срок возврата", value: "Не установлен")
@@ -255,9 +279,9 @@ struct DebtDetailView: View {
     private var actionsSection: some View {
         VStack(spacing: 12) {
             // Add partial payment button
-            if !debt.isPaid {
+            if !currentDebt.isPaid {
                 Button(action: {
-                    showingAddPaymentSheet = true
+                    showingAddPaymentAlert = true
                 }) {
                     HStack {
                         Image(systemName: "plus.circle")
@@ -280,10 +304,10 @@ struct DebtDetailView: View {
                 showingStatusChangeAlert = true
             }) {
                 HStack {
-                    Image(systemName: debt.isPaid ? "arrow.uturn.left.circle" : "checkmark.circle")
+                    Image(systemName: currentDebt.isPaid ? "arrow.uturn.left.circle" : "checkmark.circle")
                         .font(.system(size: 20))
                     
-                    Text(debt.isPaid ? "Вернуть в активные" : "Отметить как погашенный")
+                    Text(currentDebt.isPaid ? "Вернуть в активные" : "Отметить как погашенный")
                         .font(.system(size: 16, weight: .medium))
                 }
                 .foregroundColor(.white)
@@ -291,7 +315,7 @@ struct DebtDetailView: View {
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(debt.isPaid ? Color.orange : Color.green)
+                        .fill(currentDebt.isPaid ? Color.orange : Color.green)
                 )
             }
             
@@ -315,6 +339,27 @@ struct DebtDetailView: View {
                 )
             }
         }
+    }
+
+    private var parsedPaymentAmount: Double {
+        Double(paymentAmountText.replacingOccurrences(of: ",", with: ".")) ?? 0
+    }
+
+    private func commitPayment() {
+        let amount = parsedPaymentAmount
+        guard amount > 0 else {
+            paymentErrorMessage = "Введите корректную сумму платежа"
+            showingPaymentErrorAlert = true
+            return
+        }
+        guard amount <= currentDebt.remainingAmount else {
+            paymentErrorMessage = "Сумма не должна превышать остаток долга (\(Int(currentDebt.remainingAmount)) ₽)"
+            showingPaymentErrorAlert = true
+            return
+        }
+        debtStore.addPayment(amount: amount, to: currentDebt)
+        paymentAmountText = ""
+        showingAddPaymentAlert = false
     }
 }
 
@@ -340,11 +385,12 @@ struct DetailRow: View {
     }
 }
 
+#if DEBUG
 #Preview {
     DebtDetailView(debt: Debt(
         debtorName: "Фадей",
         amount: 10000,
-        description: "ТОРЧИТ СУЧКА",
+        description: "Тестовый пример",
         dateCreated: Date(),
         dueDate: Calendar.current.date(byAdding: .day, value: 30, to: Date()),
         category: .personal,
@@ -353,3 +399,87 @@ struct DetailRow: View {
     .environmentObject(DebtStore())
     .environmentObject(ThemeManager())
 }
+#endif
+
+struct PaymentInputAlert: View {
+    @EnvironmentObject var themeManager: ThemeManager
+    let title: String
+    let message: String
+    @Binding var amountText: String
+    let maxAmount: Double
+    let onCancel: () -> Void
+    let onConfirm: () -> Void
+    
+    private var isValid: Bool {
+        let normalized = amountText.replacingOccurrences(of: ",", with: ".")
+        guard let value = Double(normalized) else { return false }
+        return value > 0 && value <= maxAmount
+    }
+    
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.4).ignoresSafeArea()
+            
+            VStack(spacing: 16) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(themeManager.primaryTextColor)
+                
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundColor(themeManager.secondaryTextColor)
+                    .multilineTextAlignment(.center)
+                
+                HStack {
+                    TextField("0", text: $amountText)
+                        .keyboardType(.decimalPad)
+                        .textFieldStyle(ThemedTextFieldStyle())
+                    
+                    Text("₽")
+                        .foregroundColor(themeManager.secondaryTextColor)
+                        .padding(.trailing, 12)
+                }
+                
+                Text("Остаток: \(Int(maxAmount)) ₽")
+                    .font(.caption)
+                    .foregroundColor(themeManager.secondaryTextColor)
+                
+                HStack(spacing: 12) {
+                    Button(action: onCancel) {
+                        Text("Отмена")
+                            .font(.system(size: 16, weight: .medium))
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(themeManager.cardSecondaryBackgroundColor)
+                            )
+                    }
+                    .foregroundColor(themeManager.primaryTextColor)
+                    
+                    Button(action: onConfirm) {
+                        Text("Добавить")
+                            .font(.system(size: 16, weight: .semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.blue)
+                            )
+                    }
+                    .foregroundColor(.white)
+                    .disabled(!isValid)
+                    .opacity(isValid ? 1.0 : 0.6)
+                }
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(themeManager.cardBackgroundColor)
+                    .shadow(color: themeManager.shadowColor, radius: 3, x: 0, y: 2)
+            )
+            .padding(.horizontal, 24)
+        }
+    }
+}
+
