@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		16DD74D62E482E9400E82EA4 /* ScrollViewKeyboardDismissModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16DD74D52E482E9400E82EA4 /* ScrollViewKeyboardDismissModifier.swift */; };
-
 		16DD74D82E482E9400E82EA4 /* ArchivedDebtsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16DD74D42E482E9400E82EA4 /* ArchivedDebtsView.swift */; };
 		3D7B3A2A2B5F1C2000123456 /* DebtNetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7B3A292B5F1C2000123456 /* DebtNetApp.swift */; };
 		3D7B3A2C2B5F1C2000123456 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7B3A2B2B5F1C2000123456 /* ContentView.swift */; };
@@ -27,7 +26,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-
 		16DD74D42E482E9400E82EA4 /* ArchivedDebtsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivedDebtsView.swift; sourceTree = "<group>"; };
 		16DD74D52E482E9400E82EA4 /* ScrollViewKeyboardDismissModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewKeyboardDismissModifier.swift; sourceTree = "<group>"; };
 		3D7B3A262B5F1C2000123456 /* DebtNet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DebtNet.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -133,7 +131,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					3D7B3A252B5F1C2000123456 = {
 						CreatedOnToolsVersion = 15.0;
@@ -176,7 +174,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				16DD74D62E482E9400E82EA4 /* ScrollViewKeyboardDismissModifier.swift in Sources */,
-
 				16DD74D82E482E9400E82EA4 /* ArchivedDebtsView.swift in Sources */,
 				3D7B3A2C2B5F1C2000123456 /* ContentView.swift in Sources */,
 				3D7B3A382B5F1C3000123456 /* Debt.swift in Sources */,
@@ -231,6 +228,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = R774QHGT57;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -254,6 +252,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -294,6 +293,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = R774QHGT57;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -310,6 +310,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -323,7 +324,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"DebtNet/Preview Content\"";
-				DEVELOPMENT_TEAM = R774QHGT57;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -352,7 +352,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"DebtNet/Preview Content\"";
-				DEVELOPMENT_TEAM = R774QHGT57;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
