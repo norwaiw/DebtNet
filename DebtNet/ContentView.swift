@@ -32,12 +32,9 @@ struct ContentView: View {
                     }) {
                         VStack(spacing: 4) {
                             Image(systemName: "folder")
-                                .font(.system(size: 20))
+                                .font(.system(size: 24))
                                 .foregroundColor(selectedTab == 0 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
-                            
-                            Text("DebtNet")
-                                .font(.system(size: 12))
-                                .foregroundColor(selectedTab == 0 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
+
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -48,12 +45,9 @@ struct ContentView: View {
                     }) {
                         VStack(spacing: 4) {
                             Image(systemName: "clock.fill")
-                                .font(.system(size: 20))
+                                .font(.system(size: 24))
                                 .foregroundColor(selectedTab == 1 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                             
-                            Text("Статистика")
-                                .font(.system(size: 12))
-                                .foregroundColor(selectedTab == 1 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -64,12 +58,9 @@ struct ContentView: View {
                     }) {
                         VStack(spacing: 4) {
                             Image(systemName: "gearshape.fill")
-                                .font(.system(size: 20))
+                                .font(.system(size: 24))
                                 .foregroundColor(selectedTab == 2 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                             
-                            Text("Настройки")
-                                .font(.system(size: 12))
-                                .foregroundColor(selectedTab == 2 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -108,7 +99,7 @@ struct SettingsView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 20)
-                .padding(.top, 20)
+                .padding(.top, 8)
                 .padding(.bottom, 30)
                 
                 // Settings Content

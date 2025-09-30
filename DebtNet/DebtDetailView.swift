@@ -11,6 +11,8 @@ struct DebtDetailView: View {
     @State private var showingAddPaymentAlert = false
     @State private var showingPaymentErrorAlert = false
     @State private var paymentErrorMessage: String = ""
+    @State private var amountText = ""
+    @State private var isKeyboardVisible = false
     
     // Temporary state for new payment amount
     @State private var paymentAmountText: String = ""
@@ -432,8 +434,9 @@ struct PaymentInputAlert: View {
                 
                 HStack {
                     TextField("0", text: $amountText)
-                        .keyboardType(.decimalPad)
-                        .textFieldStyle(ThemedTextFieldStyle())
+                        .keyboardType(.numberPad)
+                        .textFieldStyle(DefaultTextFieldStyle())
+                    
                     
                     Text("₽")
                         .foregroundColor(themeManager.secondaryTextColor)
@@ -481,5 +484,6 @@ struct PaymentInputAlert: View {
             .padding(.horizontal, 24)
         }
     }
+    
+    
 }
-
