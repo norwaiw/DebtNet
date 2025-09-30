@@ -35,7 +35,7 @@ struct ContentView: View {
                                 .font(.system(size: 20))
                                 .foregroundColor(selectedTab == 0 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                             
-                            Text("Долги")
+                            Text("DebtNet")
                                 .font(.system(size: 12))
                                 .foregroundColor(selectedTab == 0 ? themeManager.primaryTextColor : themeManager.secondaryTextColor)
                         }

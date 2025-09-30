@@ -96,7 +96,7 @@ struct DebtListView: View {
     private var headerView: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Долги")
+                Text("DebtNet")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(themeManager.primaryTextColor)
