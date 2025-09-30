@@ -79,6 +79,30 @@ class ThemeManager: ObservableObject {
         isDarkMode ? .blue.opacity(0.8) : .blue
     }
     
+    // iOS-style button tokens
+    var primaryButtonBackground: Color {
+        isDarkMode ? Color(red: 0.12, green: 0.42, blue: 0.95) : Color.blue
+    }
+    var primaryButtonForeground: Color { .white }
+    
+    var secondaryButtonBackground: Color {
+        isDarkMode ? Color.blue.opacity(0.18) : Color.blue.opacity(0.12)
+    }
+    var secondaryButtonForeground: Color {
+        isDarkMode ? Color(red: 0.7, green: 0.85, blue: 1.0) : Color.blue
+    }
+    
+    var destructiveButtonBackground: Color { Color.red }
+    var destructiveButtonForeground: Color { .white }
+    
+    var tintedButtonBorder: Color {
+        isDarkMode ? Color.gray.opacity(0.4) : Color.gray.opacity(0.3)
+    }
+    
+    var subtleButtonBackground: Color {
+        isDarkMode ? Color.white.opacity(0.06) : Color.black.opacity(0.04)
+    }
+    
     var successColor: Color {
         isDarkMode ? .green.opacity(0.8) : .green
     }

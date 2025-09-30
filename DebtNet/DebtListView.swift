@@ -116,16 +116,12 @@ struct DebtListView: View {
                 showingNotificationSettings = true
             }) {
                 ZStack {
-                    // Blue circular background
                     Circle()
                         .fill(Color.blue)
                         .frame(width: 40, height: 40)
-                    
                     Image(systemName: notificationManager.isNotificationEnabled ? "bell.fill" : "bell")
                         .foregroundColor(.white)
                         .font(.system(size: 18, weight: .medium))
-                    
-                    // Badge for pending notifications
                     if notificationManager.isNotificationEnabled && upcomingDebtsCount > 0 {
                         Text("\(upcomingDebtsCount)")
                             .font(.caption2)
@@ -160,16 +156,8 @@ struct DebtListView: View {
                     selectedFilter = option
                 }) {
                     Text(option.rawValue)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(selectedFilter == option ? .white : themeManager.secondaryTextColor)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(selectedFilter == option ? Color.red : themeManager.cardBackgroundColor)
-                                .shadow(color: selectedFilter == option ? Color.red.opacity(0.4) : themeManager.shadowColor, radius: selectedFilter == option ? 6 : 1, x: 0, y: selectedFilter == option ? 2 : 1)
-                        )
                 }
+                .buttonStyle(IOS26CapsuleToggleStyle(isSelected: selectedFilter == option, selectedColor: option == .owedToMe ? .green : option == .iOwe ? .red : .gray))
             }
             Spacer()
         }
@@ -258,7 +246,7 @@ struct DebtListView: View {
                 }
                 .padding(.horizontal)
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
         }
     }
     
@@ -525,7 +513,7 @@ struct DebtHistoryRowView: View {
                             .frame(width: 26, height: 26)
                     )
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
         }
     }
     
@@ -767,7 +755,7 @@ struct ArchivedDebtRowView: View {
                     .foregroundColor(.orange)
                     .font(.system(size: 20))
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
         }
     }
     

@@ -184,7 +184,7 @@ struct StatCard: View {
             .scaleEffect(isActive ? 0.95 : 1.0)
             .animation(.easeInOut(duration: 0.2), value: isActive)
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
     }
     
     private var formattedValue: String {
@@ -340,8 +340,7 @@ struct FilteredDebtRow: View {
                             debtStore.markAsPaid(debt)
                         }
                     }
-                    .font(.system(size: 12))
-                    .foregroundColor(.blue)
+                    .buttonStyle(.ios26Bordered(foreground: .blue))
                 } else {
                     Text("Погашен")
                         .font(.system(size: 12))
@@ -748,8 +747,7 @@ struct OverdueDebtRow: View {
                         debtStore.markAsPaid(debt)
                     }
                 }
-                .font(.system(size: 12))
-                .foregroundColor(.blue)
+                .buttonStyle(.ios26Bordered(foreground: .blue))
             }
         }
         .padding(.vertical, 4)
