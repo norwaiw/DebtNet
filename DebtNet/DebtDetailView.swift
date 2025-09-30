@@ -289,14 +289,8 @@ struct DebtDetailView: View {
                         Text("Добавить платеж")
                             .font(.system(size: 16, weight: .medium))
                     }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.blue)
-                    )
                 }
+                .buttonStyle(.ios26Filled)
             }
             
             // Mark as paid/unpaid button
@@ -306,18 +300,11 @@ struct DebtDetailView: View {
                 HStack {
                     Image(systemName: currentDebt.isPaid ? "arrow.uturn.left.circle" : "checkmark.circle")
                         .font(.system(size: 20))
-                    
                     Text(currentDebt.isPaid ? "Вернуть в активные" : "Отметить как погашенный")
                         .font(.system(size: 16, weight: .medium))
                 }
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(currentDebt.isPaid ? Color.orange : Color.green)
-                )
             }
+            .buttonStyle(IOS26FilledColorButtonStyle(background: currentDebt.isPaid ? Color.orange : Color.green))
             
             // Delete button
             Button(action: {
@@ -326,18 +313,11 @@ struct DebtDetailView: View {
                 HStack {
                     Image(systemName: "trash")
                         .font(.system(size: 20))
-                    
                     Text("Удалить долг")
                         .font(.system(size: 16, weight: .medium))
                 }
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.red)
-                )
             }
+            .buttonStyle(.ios26Destructive)
         }
     }
 
@@ -448,26 +428,14 @@ struct PaymentInputAlert: View {
                     Button(action: onCancel) {
                         Text("Отмена")
                             .font(.system(size: 16, weight: .medium))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(themeManager.cardSecondaryBackgroundColor)
-                            )
                     }
-                    .foregroundColor(themeManager.primaryTextColor)
+                    .buttonStyle(.ios26Bordered(foreground: themeManager.primaryTextColor))
                     
                     Button(action: onConfirm) {
                         Text("Добавить")
                             .font(.system(size: 16, weight: .semibold))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.blue)
-                            )
                     }
-                    .foregroundColor(.white)
+                    .buttonStyle(.ios26Filled)
                     .disabled(!isValid)
                     .opacity(isValid ? 1.0 : 0.6)
                 }
