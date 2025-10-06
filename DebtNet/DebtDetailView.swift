@@ -411,16 +411,22 @@ struct PaymentInputAlert: View {
                     .foregroundColor(themeManager.secondaryTextColor)
                     .multilineTextAlignment(.center)
                 
+                // Поле ввода суммы с корректными внутренними и внешними отступами
                 HStack {
                     TextField("0", text: $amountText)
                         .keyboardType(.decimalPad)
-                        .textFieldStyle(ThemedTextFieldStyle())
                         .focused($isAmountFieldFocused)
-                    
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     Text("₽")
                         .foregroundColor(themeManager.secondaryTextColor)
-                        .padding(.trailing, 12)
                 }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(themeManager.textFieldBackgroundColor)
+                        .shadow(color: themeManager.shadowColor, radius: 1, x: 0, y: 1)
+                )
                 
                 Text("Остаток: \(Int(maxAmount)) ₽")
                     .font(.caption)
@@ -431,13 +437,15 @@ struct PaymentInputAlert: View {
                         Text("Отмена")
                             .font(.system(size: 16, weight: .medium))
                     }
-                    .buttonStyle(.ios26Bordered(foreground: themeManager.primaryTextColor))
-                    
+                    .buttonStyle(IOS26BorderedButtonStyle(minHeight: 44, foreground: themeManager.primaryTextColor))
+                    .frame(maxWidth: .infinity)
+
                     Button(action: onConfirm) {
                         Text("Добавить")
                             .font(.system(size: 16, weight: .semibold))
                     }
                     .buttonStyle(.ios26Filled)
+                    .frame(maxWidth: .infinity)
                     .disabled(!isValid)
                     .opacity(isValid ? 1.0 : 0.6)
                 }
