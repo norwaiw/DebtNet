@@ -391,6 +391,7 @@ struct PaymentInputAlert: View {
     let maxAmount: Double
     let onCancel: () -> Void
     let onConfirm: () -> Void
+    @FocusState private var isAmountFieldFocused: Bool
     
     private var isValid: Bool {
         let normalized = amountText.replacingOccurrences(of: ",", with: ".")
@@ -450,8 +451,15 @@ struct PaymentInputAlert: View {
                     .shadow(color: themeManager.shadowColor, radius: 3, x: 0, y: 2)
             )
             .padding(.horizontal, 24)
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    isAmountFieldFocused = true
+                }
+            }
+            .onDisappear {
+                isAmountFieldFocused = false
+            }
         }
     }
-    
-    
 }
+
